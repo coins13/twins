@@ -1,0 +1,60 @@
+#!/usr/bin/env python3
+# coding: utf-8
+import os
+import sys
+from getpass import getpass
+import keyring
+from twins import Twins
+
+def get_username ():
+    try:
+        username = open(os.path.expanduser("~/.twins-username")).read()
+    except IOError:
+        username = input("enter username: ")
+        with open(os.path.expanduser("~/.twins-username"), "w") as f: f.write(username)
+    return username
+
+
+def get_passwd (username):
+    pass_ = keyring.get_password("system", "twins-" + username)
+    if pass_ is None:
+        pass_ = getpass("enter password for %s: " % username)
+        keyring.set_password("system", "twins-" + username, pass_)
+    return pass_
+
+
+def delete_account_info (username):
+    keyring.delete_password("system", "twins-" + username)
+    try: os.remove(os.path.expanduser("~/.twins-username"))
+    except: pass
+
+
+HELP = """
+Usage: univ command
+
+commands:
+  t - 成績開示
+"""
+
+def main ():
+    try:
+        command = sys.argv[1]
+    except IndexError:
+        sys.exit(HELP)
+
+    if command == "t":
+        t = Twins(get_username(), get_passwd(get_username()))
+        # TODO
+        for a in t.get_achievements():
+            try:
+                print("%s\t%s\t\t%s" % (a[7], a[4], a[3]))
+            except IndexError:
+                pass # ignore for now
+    else:
+        sys.exit(HELP)
+
+if __name__== "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        sys.exit("aborted.")
