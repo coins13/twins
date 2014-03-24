@@ -14,6 +14,11 @@ class RequestError (Exception):
 
 
 class Twins:
+    """
+      世界初のTwinsのライブラリ for Python。
+      Twinsの機能のサポートは `get_achievements()` とかを参考に、`req()` 一つで実装できるはず。
+      セッションIDなどのcokkieは`self.s` (RequestsのSessionオブジェクト)に入ってる。
+    """
     def __init__ (self, username, password):
         self.auth(username, password)
 
@@ -49,16 +54,16 @@ class Twins:
 
         s = requests.Session()
 
-        # twins will return 302
+        # 302を返したら成功。200はエラー。作った人は2xxの意味知らないのかな。
         r = s.post(TWINS_URL, data=payload, allow_redirects=False)
         if r.status_code == 200: raise AuthError("username or password is incorrect")
         if r.status_code != 302: raise AuthError("behavior of twins may changed (auth #1)")
 
-        # follow redirect #1
+        # リダイレクトその1
         r = s.get(r.headers.get("location"), allow_redirects=False)
         if r.status_code != 302: raise AuthError("behavior of twins may changed (auth #2)")
 
-        # follow redirect #2
+        # リダイレクトその2
         r = s.get(r.headers.get("location"), allow_redirects=False)
         if r.status_code != 200: raise AuthError("behavior of twins may changed (auth #3)")
 
@@ -67,10 +72,10 @@ class Twins:
 
 
     def register_course (self, course_id):
-        """ Registers a course (履修申請). It returns on success or abort the program on failure."""
+        """ 履修申請する。返り値がTrueだったら成功"""
         course_id = course_id.toupper()
 
-        # these constants seems not to be important
+        # 曜日と時限。たぶん適当で大丈夫。
         weekday = 3
         period  = 3
         r = self.req("RSW0001000-flow", [{
@@ -116,4 +121,7 @@ class Twins:
                                            "logicalDeleteFlg": 0
                                          }])
 
-        return list(csv.reader(r.text.split("\n")))
+        d = list(csv.reader(r.text.split("\n")))
+        k,vs = d[0], d[1:]
+        k = list(map(lambda s: s.strip(), k))
+        return [ dict(zip(k, v)) for v in vs ]

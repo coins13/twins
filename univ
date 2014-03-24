@@ -50,12 +50,25 @@ def main ():
 
     if command == "t":
         t = Twins(get_username(), get_passwd(get_username()))
-        # TODO
+        print("評価\t単位数\t科目名")
         for a in t.get_achievements():
             try:
-                print("%s\t%s\t\t%s" % (a[7], a[4], a[3]))
-            except IndexError:
-                pass # ignore for now
+                print("%s\t%s\t%s" % (a["総合評価"], a["単位数"], a["科目名"]))
+            except KeyError:
+                pass # FIXME: 謎の空リスト対策。たぶんCSVの最後に要らない改行が入ってる。
+    elif command == "d":
+        # イースターエッグ: 落単リスト。リフレッシュマンなんていないので考慮してない。
+        t = Twins(get_username(), get_passwd(get_username()))
+        print("単位数\t科目名")
+        i=0
+        for a in t.get_achievements():
+            try:
+                if a["総合評価"] != "D": continue
+                i += float(a["単位数"])
+                print("%s\t%s" % (a["単位数"], a["科目名"]))
+            except KeyError:
+                pass # FIXME: 謎の空リスト対策。たぶんCSVの最後に要らない改行が入ってる。
+        if i > 15: print("がんばろう")
     else:
         sys.exit(HELP)
 
