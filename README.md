@@ -17,6 +17,7 @@ univ
 -----------
 ```
 # git clone https://github.com/coins13/univ.git
+# pip3 install -r requirements.txt
 # python3 setup.py install
 ```
 
@@ -30,5 +31,5 @@ $ univ help
 -----
 ```
 $ univ t|awk '$1 == "A+"{ print }'|sort   # A+とった授業
-$ univ ts|awk '$1 == "GPA:"{ print $2 }'|mail -s "my GPA" momo@example.com  # 母親にGPAを教える
+$ univ ts|awk '$1 == "GPA:"{ print $2 }'|mail -s "my GPA" mom@example.com  # 母親にGPAを教える
 ```
