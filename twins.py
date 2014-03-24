@@ -37,8 +37,9 @@ class Twins:
     def follow_flow (self, req):
         return self.post(req, True)
 
-    def req (self, flowId, reqs):
-        self.start_flow(flowId)
+    def req (self, flowId, reqs=None):
+        r = self.start_flow(flowId)
+        if reqs is None: return r
         for req in reqs:
             r = self.follow_flow(req)
         return r
@@ -105,6 +106,31 @@ class Twins:
                                          }])
 
         return list(csv.reader(r.text.split("\n")))
+
+
+    def get_achievements_summary (self):
+        """ 履修成績要約の取得 (累計)"""
+        r = self.req("SIW0001200-flow")
+        # 楽しいスクレイピング
+ 
+        # XXX
+        ret = {}
+        k = ""
+        for d in pq(r.text)("td"):
+            if d.text is None: continue
+            if k != "":
+                # 全角英字ダメゼッタイ
+                if k == "ＧＰＡ": k = "GPA"
+                ret[k] = d.text.strip()
+                k = ""
+                continue
+            k = d.text.strip()
+            if k == "履修単位数" or k == "修得単位数" or k == "ＧＰＡ":
+                continue
+            else:
+                k = ""
+
+        return ret
 
 
     def get_achievements (self):

@@ -36,10 +36,11 @@ def delete_account_info (username):
         pass
 
 HELP = """
-Usage: univ command
+使い方: univ コマンド
 
-commands:
-  t - 成績開示
+コマンドたち:
+  t  - 成績開示
+  ts - 累計成績要約 (履修単位数, 修得単位数, GPA)
 """
 
 def main ():
@@ -48,6 +49,7 @@ def main ():
     except IndexError:
         sys.exit(HELP)
 
+    # XXX: もっときちんとしたコマンド名が欲しい
     if command == "t":
         t = Twins(get_username(), get_passwd(get_username()))
         print("評価\t単位数\t科目名")
@@ -56,6 +58,15 @@ def main ():
                 print("%s\t%s\t%s" % (a["総合評価"], a["単位数"], a["科目名"]))
             except KeyError:
                 pass # FIXME: 謎の空リスト対策。たぶんCSVの最後に要らない改行が入ってる。
+
+    elif command == "ts":
+        t = Twins(get_username(), get_passwd(get_username()))
+        for k,v in t.get_achievements_summary().items():
+            if k == "GPA":
+                print("%s:\t\t%s" % (k, v))
+            else:
+                print("%s:\t%s" % (k, v))
+
     elif command == "d":
         # イースターエッグ: 落単リスト。リフレッシュマンなんていないので考慮してない。
         t = Twins(get_username(), get_passwd(get_username()))
@@ -69,6 +80,10 @@ def main ():
             except KeyError:
                 pass # FIXME: 謎の空リスト対策。たぶんCSVの最後に要らない改行が入ってる。
         if i > 15: print("がんばろう")
+
+    elif command == "help":
+        sys.exit(HELP)
+
     else:
         sys.exit(HELP)
 

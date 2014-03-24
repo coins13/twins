@@ -6,6 +6,7 @@ univ
 機能
 ---
 - 成績開示
+- 累計成績要約 (履修単位数, 修得単位数, GPA)
 
 必要なもの
 ---------
@@ -22,5 +23,12 @@ univ
 使い方
 -----
 ```
-$ univ
+$ univ help
+```
+
+用例
+-----
+```
+$ univ t|awk '$1 == "A+"{ print }'|sort   # A+とった授業
+$ univ ts|awk '$1 == "GPA:"{ print $2 }'|mail -s "my GPA" momo@example.com  # 母親にGPAを教える
 ```
