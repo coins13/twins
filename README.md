@@ -11,7 +11,6 @@ univ
 ---------
 - *nix
 - Python3
-- [keyringが対応してるキーリングサービス](https://pypi.python.org/pypi/keyring/3.7#what-is-python-keyring-lib)
 
 インストール
 -----------

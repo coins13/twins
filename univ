@@ -16,18 +16,24 @@ def get_username ():
 
 
 def get_passwd (username):
-    pass_ = keyring.get_password("system", "twins-" + username)
-    if pass_ is None:
-        pass_ = getpass("enter password for %s: " % username)
-        keyring.set_password("system", "twins-" + username, pass_)
-    return pass_
-
+    """ OS X のキーリングがよくわからないので、ホームディレクトリに0600なファイルを作る。"""
+    try:
+        passwd = open(os.path.expanduser("~/.twins-passwd")).read()
+    except IOError:
+        passwd = getpass("enter passwd: ")
+        # XXX
+        open(os.path.expanduser("~/.twins-passwd"), "w").close()
+        os.chmod(os.path.expanduser("~/.twins-passwd"), 0o600)
+        with open(os.path.expanduser("~/.twins-passwd"), "w") as f:
+            f.write(passwd)
+    return passwd
 
 def delete_account_info (username):
-    keyring.delete_password("system", "twins-" + username)
-    try: os.remove(os.path.expanduser("~/.twins-username"))
-    except: pass
-
+    try:
+        os.remove(os.path.expanduser("~/.twins-username"))
+        os.remove(os.path.expanduser("~/.twins-passwd"))
+    except:
+        pass
 
 HELP = """
 Usage: univ command
