@@ -5,12 +5,13 @@ import sys
 from getpass import getpass
 import keyring
 from twins import Twins
+from ssh import search_for_ssh_server
 
 def get_username ():
     try:
         username = open(os.path.expanduser("~/.twins-username")).read()
     except IOError:
-        username = input("enter username: ")
+        username = input("enter username (sXXXXXXX): ")
         with open(os.path.expanduser("~/.twins-username"), "w") as f: f.write(username)
     return username
 
@@ -39,8 +40,9 @@ HELP = """
 使い方: univ コマンド
 
 コマンドたち:
-  t  - 成績開示
-  ts - 累計成績要約 (履修単位数, 修得単位数, GPA)
+  t   - 成績開示
+  ts  - 累計成績要約 (履修単位数, 修得単位数, GPA)
+  ssh - COINSの適当なiMacにSSH接続
 """
 
 def main ():
@@ -66,6 +68,14 @@ def main ():
                 print("%s:\t\t%s" % (k, v))
             else:
                 print("%s:\t%s" % (k, v))
+
+    elif command == "ssh":
+        print("univ: searching for available iMac...")
+        host = search_for_ssh_server()
+        if host == "":
+            sys.exit("univ: Failed to connect. Try again.")
+        user = get_username()
+        os.system("ssh -l %s %s" % (user, host))
 
     elif command == "d":
         # イースターエッグ: 落単リスト。リフレッシュマンなんていないので考慮してない。
