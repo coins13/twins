@@ -54,6 +54,7 @@ class Twins:
                   }
 
         s = requests.Session()
+        s.headers.update({"User-Agent": "Mozilla/5.0 (Windows NT 6.2; もっとまともなUIにして欲しいです。 Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/328900893021.0.1667.0 Safari/537.36"})
 
         # 302を返したら成功。200はエラー。作った人は2xxの意味知らないのかな。
         r = s.post(TWINS_URL, data=payload, allow_redirects=False)
