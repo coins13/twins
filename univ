@@ -4,6 +4,7 @@ import os
 import sys
 from getpass import getpass
 import keyring
+import twins
 from twins import Twins
 from ssh import search_for_ssh_server
 
@@ -29,20 +30,23 @@ def get_passwd (username):
             f.write(passwd)
     return passwd
 
-def delete_account_info (username):
+def delete_account_info ():
     try:
+        username = open(os.path.expanduser("~/.twins-username")).read()
         os.remove(os.path.expanduser("~/.twins-username"))
         os.remove(os.path.expanduser("~/.twins-passwd"))
     except:
         pass
 
-HELP = """
+    sys.exit("univ: authorization error (Username or password are incorrect. Perhaps TWINS is down for maintainance.)")
+
+HELP = """\
 使い方: univ コマンド
 
 コマンドたち:
   t   - 成績開示
   ts  - 累計成績要約 (履修単位数, 修得単位数, GPA)
-  ssh - COINSの適当なiMacにSSH接続
+  ssh - COINSの適当なiMacにSSH接続\
 """
 
 def main ():
@@ -53,7 +57,8 @@ def main ():
 
     # XXX: もっときちんとしたコマンド名が欲しい
     if command == "t":
-        t = Twins(get_username(), get_passwd(get_username()))
+        try: t = Twins(get_username(), get_passwd(get_username()))
+        except twins.AuthError: delete_account_info()
         print("評価\t単位数\t科目名")
         for a in t.get_achievements():
             try:
@@ -62,7 +67,8 @@ def main ():
                 pass # FIXME: 謎の空リスト対策。たぶんCSVの最後に要らない改行が入ってる。
 
     elif command == "ts":
-        t = Twins(get_username(), get_passwd(get_username()))
+        try: t = Twins(get_username(), get_passwd(get_username()))
+        except twins.AuthError: delete_account_info()
         for k,v in t.get_achievements_summary().items():
             if k == "GPA":
                 print("%s:\t\t%s" % (k, v))
@@ -79,7 +85,8 @@ def main ():
 
     elif command == "d":
         # イースターエッグ: 落単リスト。リフレッシュマンなんていないので考慮してない。
-        t = Twins(get_username(), get_passwd(get_username()))
+        try: t = Twins(get_username(), get_passwd(get_username()))
+        except twins.AuthError: delete_account_info()
         print("単位数\t科目名")
         i=0
         for a in t.get_achievements():
