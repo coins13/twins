@@ -12,7 +12,6 @@ class AuthError (Exception):
 class RequestError (Exception):
   pass
 
-
 class Twins:
     """
       世界初のTwinsのライブラリ for Python。
@@ -27,7 +26,7 @@ class Twins:
              payload["_flowExecutionKey"] = self.exec_key
 
         r = self.s.post(TWINS_URL, params=payload, allow_redirects=False)
-        self.exec_key = parse_qs(urlparse(r.headers.get("location")).query)["_flowExecutionKey"]
+        self.exec_key = parse_qs(urlparse(r.headers.get("location")).query)["_flowExecutionKey"][0]
         r = self.s.get(r.headers.get("location"), allow_redirects=False)
         return r
 
@@ -74,26 +73,24 @@ class Twins:
 
 
     def register_course (self, course_id):
-        """ 履修申請する。返り値がTrueだったら成功"""
-        course_id = course_id.toupper()
+        """ 履修申請する """
+        course_id = course_id.upper()
 
-        # 曜日と時限。たぶん適当で大丈夫。
-        weekday = 3
-        period  = 3
         r = self.req("RSW0001000-flow", [{
                                            "_eventId": "input",
-                                           "yobi":     weekday,
-                                           "jigen":    period
+                                           "yobi":     "1",
+                                           "jigen":    "1"
                                          },{
-                                           "nendo": "",
+                                           "_eventId": "insert",
+                                           "nendo": "2014",
                                            "jikanwariShozokuCode": "",
                                            "jikanwariCode": course_id,
                                            "dummy": ""
                                          }])
 
-        errmsg = pq(html)(".error").text()
+        errmsg = pq(r.text)(".error").text()
         if errmsg != "":
-           raise RequestError(errmsg)
+           raise RequestError()
 
 
     def get_registered_courses (self):

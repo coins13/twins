@@ -44,9 +44,10 @@ HELP = """\
 使い方: univ コマンド
 
 コマンドたち:
-  t   - 成績開示
-  ts  - 累計成績要約 (履修単位数, 修得単位数, GPA)
-  ssh - COINSの適当なiMacにSSH接続\
+  t            - 成績開示
+  ts           - 累計成績要約 (履修単位数, 修得単位数, GPA)
+  r course_id  - 履修登録 
+  ssh          - COINSの適当なiMacにSSH接続\
 """
 
 def main ():
@@ -74,6 +75,14 @@ def main ():
                 print("%s:\t\t%s" % (k, v))
             else:
                 print("%s:\t%s" % (k, v))
+
+    elif command == "r":
+        try: course_id = sys.argv[2]
+        except IndexError: sys.exit(HELP)
+        try: t = Twins(get_username(), get_passwd(get_username()))
+        except twins.AuthError: delete_account_info()
+        try: t.register_course(course_id)
+        except twins.RequestError: sys.exit("registration error: duplication or invalid course id?")
 
     elif command == "ssh":
         print("univ: searching for available iMac...")
