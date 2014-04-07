@@ -103,7 +103,7 @@ class Twins:
                                            "logicalDeleteFlg": 0
                                          }])
 
-        return list(csv.reader(r.text.split("\n")))
+        return list(csv.reader(r.text.rstrip().split("\n")))
 
 
     def get_achievements_summary (self):
@@ -145,7 +145,7 @@ class Twins:
                                            "logicalDeleteFlg": 0
                                          }])
 
-        d = list(csv.reader(r.text.split("\n")))
+        d = list(csv.reader(r.text.rstrip().split("\n")))
         k,vs = d[0], d[1:]
         k = list(map(lambda s: s.strip(), k))
         return [ dict(zip(k, v)) for v in vs ]
