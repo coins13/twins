@@ -44,10 +44,10 @@ HELP = """\
 使い方: univ コマンド
 
 コマンドたち:
-  t            - 成績開示
-  ts           - 累計成績要約 (履修単位数, 修得単位数, GPA)
-  r course_id  - 履修登録 
-  ssh          - COINSの適当なiMacにSSH接続\
+  ach            - 成績開示
+  achsum         - 累計成績要約 (履修単位数, 修得単位数, GPA)
+  reg course_id  - 履修登録
+  ssh            - COINSの適当なiMacにSSH接続\
 """
 
 def main ():
@@ -57,7 +57,7 @@ def main ():
         sys.exit(HELP)
 
     # XXX: もっときちんとしたコマンド名が欲しい
-    if command == "t":
+    if command == "ach":
         try: t = Twins(get_username(), get_passwd(get_username()))
         except twins.AuthError: delete_account_info()
         print("評価\t単位数\t科目名")
@@ -67,7 +67,7 @@ def main ():
             except KeyError:
                 pass # FIXME: 謎の空リスト対策。たぶんCSVの最後に要らない改行が入ってる。
 
-    elif command == "ts":
+    elif command == "achsum":
         try: t = Twins(get_username(), get_passwd(get_username()))
         except twins.AuthError: delete_account_info()
         for k,v in t.get_achievements_summary().items():
@@ -76,7 +76,7 @@ def main ():
             else:
                 print("%s:\t%s" % (k, v))
 
-    elif command == "r":
+    elif command == "reg":
         try: course_id = sys.argv[2]
         except IndexError: sys.exit(HELP)
         try: t = Twins(get_username(), get_passwd(get_username()))
@@ -92,7 +92,7 @@ def main ():
         user = get_username()
         os.system("ssh -l %s %s" % (user, host))
 
-    elif command == "d":
+    elif command == "次モジュールから本気出す":
         # イースターエッグ: 落単リスト。リフレッシュマンなんていないので考慮してない。
         try: t = Twins(get_username(), get_passwd(get_username()))
         except twins.AuthError: delete_account_info()

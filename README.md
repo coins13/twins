@@ -30,6 +30,6 @@ $ univ help
 用例
 -----
 ```
-$ univ t|awk '$1 == "A+"{ print }'   # A+とった授業
-$ univ ts|awk '$1 == "GPA:"{ print $2 }'|mail -s "my GPA" mom@example.com  # 母親にGPAを教える
+$ univ ach|awk '$1 == "A+"{ print }'   # A+とった授業
+$ univ achsum|awk '$1 == "GPA:"{ print $2 }'|mail -s "my GPA" mom@example.com  # 母親にGPAを教える
 ```

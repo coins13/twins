@@ -1,6 +1,5 @@
 ToDo
 ====
-- 履修登録
 - kdbを使っての授業情報表示
 - 履修登録済み授業の出力
 - www.coins.tuskuba.ac.jp/ce の情報表示
