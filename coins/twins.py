@@ -4,6 +4,8 @@ from urllib.parse import urlparse, parse_qs
 import requests
 from pyquery import PyQuery as pq
 
+import coins.kdb as kdb
+
 TWINS_URL = "https://twins.tsukuba.ac.jp/campusweb/campussquare.do"
 
 class AuthError (Exception):
@@ -94,6 +96,7 @@ class Twins:
 
 
     def get_registered_courses (self):
+        """ 履修登録済み授業を取得 """
         r = self.req("RSW0001000-flow", [{
                                            "_eventId": "output"
                                          },{
@@ -103,14 +106,16 @@ class Twins:
                                            "logicalDeleteFlg": 0
                                          }])
 
-        return list(csv.reader(r.text.rstrip().split("\n")))
+        reged = list(csv.reader(r.text.strip().split("\n")))[0]
+        if reged == []:
+          return []
+        return [ kdb.get_course_info(c) for c in reged ]
 
 
     def get_achievements_summary (self):
         """ 履修成績要約の取得 (累計)"""
         r = self.req("SIW0001200-flow")
-        # 楽しいスクレイピング
- 
+
         # XXX
         ret = {}
         k = ""

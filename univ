@@ -5,6 +5,7 @@ import sys
 from getpass import getpass
 import keyring
 import coins.twins as twins
+import coins.kdb as kdb
 from coins.twins import Twins
 from coins.ssh import search_for_ssh_server
 
@@ -85,8 +86,9 @@ def main ():
     elif command == "reged":
         try: t = Twins(get_username(), get_passwd(get_username()))
         except twins.AuthError: delete_account_info()
+        print("%s\t%s\t%s\t%s\t%s\t\t%s" % ("科目番号", "単位", "学期", "曜日", "教室", "科目名"))
         for c in t.get_registered_courses():
-            print("%s" % c[0])
+            print("%s\t\t%s\t%s\t%s\t%s\t\t%s" % (c["id"], c["credit"], c["modules"], c["periods"], c["room"], c["title"]))
 
     elif command == "ssh":
         print("univ: searching for available iMac...")
