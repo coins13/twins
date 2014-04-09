@@ -45,11 +45,12 @@ HELP = """\
 使い方: univ コマンド
 
 コマンドたち:
-  ach            - 成績開示
-  achsum         - 累計成績要約 (履修単位数, 修得単位数, GPA)
-  reg course_id  - 履修登録
-  reged          - 履修登録済み授業を表示
-  ssh            - COINSの適当なiMacにSSH接続\
+  ach               - 成績開示
+  achsum            - 累計成績要約 (履修単位数, 修得単位数, GPA)
+  reg     科目番号  - 履修登録
+  unreg   科目番号  - 履修登録の取り消し
+  reged             - 履修登録済み授業を表示
+  ssh               - COINSの適当なiMacにSSH接続\
 """
 
 def main ():
@@ -83,11 +84,20 @@ def main ():
         try: t.register_course(course_id)
         except twins.RequestError: sys.exit("registration error: duplication or invalid course id?")
 
+    elif command == "unreg":
+        try: course_id = sys.argv[2]
+        except IndexError: sys.exit(HELP)
+        try: t = Twins(get_username(), get_passwd(get_username()))
+        except twins.AuthError: delete_account_info()
+        try: t.unregister_course(course_id)
+        except twins.RequestError: sys.exit("unregistration error")
+
     elif command == "reged":
         try: t = Twins(get_username(), get_passwd(get_username()))
         except twins.AuthError: delete_account_info()
         print("%s\t%s\t%s\t%s\t%s\t\t%s" % ("科目番号", "単位", "学期", "曜日", "教室", "科目名"))
         for c in t.get_registered_courses():
+            if c is None: continue
             print("%s\t\t%s\t%s\t%s\t%s\t\t%s" % (c["id"], c["credit"], c["modules"], c["periods"], c["room"], c["title"]))
 
     elif command == "ssh":

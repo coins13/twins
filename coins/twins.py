@@ -1,4 +1,5 @@
 # coding: utf-8
+import re
 import csv
 from urllib.parse import urlparse, parse_qs
 import requests
@@ -88,6 +89,38 @@ class Twins:
                                            "jikanwariShozokuCode": "",
                                            "jikanwariCode": course_id,
                                            "dummy": ""
+                                         }])
+
+        errmsg = pq(r.text)(".error").text()
+        if errmsg != "":
+           raise RequestError()
+
+
+    def unregister_course (self, course_id):
+        """ 履修申請を取り消す """
+        course_id = course_id.upper()
+
+        # 履修登録照会画面から時限、曜日とかを取り出す
+        courses = {}
+        r = self.req("RSW0001000-flow")
+        for js_args in re.findall("DeleteCallA\(([\'\ \,A-Z0-9]+)\)", r.text):
+            js_args = js_args.replace("'", "").split(",")
+           courses[js_args[2]] = {
+                                    "yobi":  js_args[3],
+                                    "jigen": js_args[4],
+                                    "nendo": js_args[0],
+                                    "jikanwariShozokuCode": js_args[1]
+                                  }
+
+        r = self.req("RSW0001000-flow", [{
+                                           "_eventId": "delete",
+                                           "yobi":     courses[course_id]["yobi"],
+                                           "jigen":    courses[course_id]["jigen"],
+                                           "nendo":    courses[course_id]["nendo"],
+                                           "jikanwariShozokuCode": courses[course_id]["jikanwariShozokuCode"],
+                                           "jikanwariCode": course_id,
+                                         },{
+                                           "_eventId": "delete"
                                          }])
 
         errmsg = pq(r.text)(".error").text()
