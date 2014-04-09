@@ -9,7 +9,7 @@ setup(
     description="A command line utility for coins",
     load_description=long_description,
     url="http://github.com/coins14/twins",
-    py_modules=["twins"],
+    py_modules=["coins"],
     scripts=["univ"],
     install_requires=open("requirements.txt").read().split('\n'),
     packages=find_packages(),
