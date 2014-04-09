@@ -143,10 +143,10 @@ class Twins:
                                            "logicalDeleteFlg": 0
                                          }])
 
-        reged = list(csv.reader(r.text.strip().split("\n")))[0]
+        reged = list(csv.reader(r.text.strip().split("\n")))
         if reged == []:
           return []
-        return [ kdb.get_course_info(c) for c in reged ]
+        return [ kdb.get_course_info(c[0]) for c in reged ]
 
 
     def get_achievements_summary (self):
