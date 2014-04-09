@@ -102,6 +102,20 @@ def main ():
             if c is None: continue
             print("%s\t\t%s\t%s\t%s\t%s\t\t%s" % (c["id"], c["credit"], c["modules"], c["periods"], c["room"], c["title"]))
 
+    elif command == "info":
+        try: course_id = sys.argv[2]
+        except IndexError: sys.exit(HELP)
+        try: c = kdb.get_course_info(course_id)
+        except kdb.DownloadError: sys.exit("failed to download Kdb database")
+        print("科目名:   %s"  % c["title"])
+        print("科目番号: %s"  % c["id"])
+        print("単位:     %s"  % c["credit"])
+        print("学期:     %s"  % c["modules"])
+        print("教室:     %s"  % c["room"])
+        print("時限:     %s"  % c["periods"])
+        print("概要:\n%s"     % c["desc"])
+        print("注意事項:\n%s" % c["notes"])
+
     elif command == "search":
         try: query = sys.argv[2]
         except IndexError: sys.exit(HELP)
