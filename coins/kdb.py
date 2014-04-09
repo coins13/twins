@@ -45,13 +45,12 @@ class Kdb:
                                              )
                       ''')
             for l in list_:
-                if len(l) != 12:
-                     sys.stderr.write("connect_course_list_db(): 変な行だ: %s" % l)
-                else:
                      c.execute("INSERT INTO courses VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", l)
             self.c = c
         else:
             self.c = sqlite.connect(os.path.expanduser("~/.course_list.db"))
+
+        self.c.commit()
 
     def __enter__ (self):
         return self
