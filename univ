@@ -49,6 +49,8 @@ HELP = """\
   achsum            - 累計成績要約 (履修単位数, 修得単位数, GPA)
   reg     科目番号  - 履修登録
   unreg   科目番号  - 履修登録の取り消し
+  info    科目番号  - 科目情報の表示
+  search  文字列    - 授業探し
   reged             - 履修登録済み授業を表示
   ssh               - COINSの適当なiMacにSSH接続\
 """
@@ -99,6 +101,16 @@ def main ():
         for c in t.get_registered_courses():
             if c is None: continue
             print("%s\t\t%s\t%s\t%s\t%s\t\t%s" % (c["id"], c["credit"], c["modules"], c["periods"], c["room"], c["title"]))
+
+    elif command == "search":
+        try: query = sys.argv[2]
+        except IndexError: sys.exit(HELP)
+        try: k = kdb.Kdb()
+        except kdb.DownloadError: sys.exit("failed to download Kdb database")
+        print("%s\t%s\t%s\t%s\t\t%s" % ("科目番号", "単位", "学期", "曜日", "科目名"))
+        for c in k.search(query):
+            if c is None: continue
+            print("%s\t\t%s\t%s\t%s\t\t%s" % (c["id"], c["credit"], c["modules"], c["periods"], c["title"]))
 
     elif command == "ssh":
         print("univ: searching for available iMac...")

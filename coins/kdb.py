@@ -30,7 +30,7 @@ class Kdb:
             # ダウンロードしたのからSQLiteのデータベースを作る
             c = sqlite.connect(os.path.expanduser("~/.course_list.db"))
             c.execute('''
-                        CREATE TABLE courses (
+                        CREATE VIRTUAL TABLE courses USING fts4 (
                                                id text,
                                                title text,
                                                credit real,
@@ -59,6 +59,16 @@ class Kdb:
     def __exit__ (self, exc_type, exc_value, traceback):
         self.c.commit()
         self.c.close()
+
+    def search (self, query):
+        keys = "id,title,credit,modules,periods,room,desc,notes"
+        # FIXME: SQL injectionするアホ対策が必要
+        sql  = "SELECT %s FROM courses WHERE " % keys
+        sql += " OR ".join([k + " LIKE '%" + query + "%'" for k in keys.split(",")])
+        matched = []
+        for c in self.c.execute(sql).fetchall():
+            matched.append({k: v for k,v in zip(keys.split(","), c) })
+        return matched
 
 
 def get_course_info (course_id):
