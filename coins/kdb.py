@@ -3,13 +3,14 @@ import sys
 import csv
 import sqlite3 as sqlite
 import requests
+from coins.misc import *
 
 class DownloadError (Exception):
     pass
 
 def download_course_list ():
      r = requests.post("https://kdb.tsukuba.ac.jp", headers={"Accept-Language": "ja"},
-           data={"action": "downloadList", "hdnFy": "2014", "cmbDwldtype": "csv"})
+           data={"action": "downloadList", "hdnFy": get_nendo(), "cmbDwldtype": "csv"})
 
      if r.status_code != 200:
        raise DownloadError

@@ -6,6 +6,7 @@ import requests
 from pyquery import PyQuery as pq
 
 import coins.kdb as kdb
+from coins.misc import *
 
 TWINS_URL = "https://twins.tsukuba.ac.jp/campusweb/campussquare.do"
 
@@ -85,7 +86,7 @@ class Twins:
                                            "jigen":    "1"
                                          },{
                                            "_eventId": "insert",
-                                           "nendo": "2014",
+                                           "nendo": get_nendo(),
                                            "jikanwariShozokuCode": "",
                                            "jikanwariCode": course_id,
                                            "dummy": ""
@@ -105,12 +106,15 @@ class Twins:
         r = self.req("RSW0001000-flow")
         for js_args in re.findall("DeleteCallA\(([\'\ \,A-Z0-9]+)\)", r.text):
             js_args = js_args.replace("'", "").split(",")
-           courses[js_args[2]] = {
+            courses[js_args[2]] = {
                                     "yobi":  js_args[3],
                                     "jigen": js_args[4],
                                     "nendo": js_args[0],
                                     "jikanwariShozokuCode": js_args[1]
                                   }
+
+        if not course_id in courses:
+            raise RequestError()
 
         r = self.req("RSW0001000-flow", [{
                                            "_eventId": "delete",
@@ -172,7 +176,7 @@ class Twins:
     def get_achievements (self):
         r = self.req("SIW0001200-flow", [{
                                            "_eventId":      "output",
-                                           "nendo":         2013,
+                                           "nendo":         get_nendo(),
                                            "gakkiKbnCd":    "B",
                                            "spanType":      0,
                                            "_displayCount": 100
