@@ -82,7 +82,7 @@ def main ():
         try: t = Twins(get_username(), get_passwd(get_username()))
         except twins.AuthError: delete_account_info()
         try: t.register_course(course_id)
-        except twins.RequestError: sys.exit("registration error: duplication or invalid course id?")
+        except twins.RequestError: sys.exit("履修エラー: 不正、重複またはまだ履修できない科目番号です (%s)" % course_id)
 
     elif command == "unreg":
         try: course_id = sys.argv[2]
@@ -90,7 +90,7 @@ def main ():
         try: t = Twins(get_username(), get_passwd(get_username()))
         except twins.AuthError: delete_account_info()
         try: t.unregister_course(course_id)
-        except twins.RequestError: sys.exit("unregistration error")
+        except twins.RequestError: sys.exit("履修取り消しエラー: '%s'" % course_id)
 
     elif command == "reged":
         try: t = Twins(get_username(), get_passwd(get_username()))
