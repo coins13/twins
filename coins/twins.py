@@ -87,17 +87,38 @@ class Twins:
         """ 履修申請する """
         course_id = course_id.upper()
 
-        r = self.req("RSW0001000-flow", [{
-                                           "_eventId": "input",
-                                           "yobi":     "1",
-                                           "jigen":    "1"
-                                         },{
-                                           "_eventId": "insert",
-                                           "nendo": get_nendo(),
-                                           "jikanwariShozokuCode": "",
-                                           "jikanwariCode": course_id,
-                                           "dummy": ""
-                                         }])
+        # 何モジュール開講か取得
+        first_module = kdb.get_course_info(course_id)["modules"][:2]
+        if not first_module.startswith("春") and \
+           not first_module.startswith("秋"):
+            raise RequestError() # FIXME: 多分集中科目
+        module_code,gakkiKbnCode = {
+                                     "春A": (1, "A"),
+                                     "春B": (2, "A"),
+                                     "春C": (3, "A"),
+                                     "秋A": (4, "B"),
+                                     "秋B": (5, "B"),
+                                     "秋C": (6, "B")
+                                   }.get(first_module)
+
+        self.req("RSW0001000-flow")
+        self.get({
+                   "_eventId":   "search",
+                   "moduleCode": module_code,
+                   "gakkiKbnCode": gakkiKbnCode
+                })
+        self.post({
+                    "_eventId": "input",
+                    "yobi":     "1",
+                    "jigen":    "1"
+                 }, True)
+        r = self.post({
+                        "_eventId": "insert",
+                        "nendo": get_nendo(),
+                        "jikanwariShozokuCode": "",
+                        "jikanwariCode": course_id,
+                        "dummy": ""
+                     }, True)
 
         errmsg = pq(r.text)(".error").text()
         if errmsg != "":
