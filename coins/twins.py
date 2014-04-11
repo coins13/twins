@@ -25,6 +25,13 @@ class Twins:
     def __init__ (self, username, password):
         self.auth(username, password)
 
+    def get (self, payload, **get_args):
+        payload["_flowExecutionKey"] = self.exec_key
+        r = self.s.get(TWINS_URL, params=payload, allow_redirects=False)
+        self.exec_key = parse_qs(urlparse(r.headers.get("location")).query)["_flowExecutionKey"][0]
+        r = self.s.get(r.headers.get("location"), allow_redirects=False)
+        return r
+
     def post (self, payload, with_exec_key=False):
         if with_exec_key:
              payload["_flowExecutionKey"] = self.exec_key
@@ -101,11 +108,32 @@ class Twins:
         """ 履修申請を取り消す """
         course_id = course_id.upper()
 
+        # 何モジュール開講か取得
+        first_module = kdb.get_course_info(course_id)["modules"][:2]
+        if not first_module.startswith("春") and \
+           not first_module.startswith("秋"):
+            raise RequestError() # FIXME: 多分集中科目
+        module_code,gakkiKbnCode = {
+                                     "春A": (1, "A"),
+                                     "春B": (2, "A"),
+                                     "春C": (3, "A"),
+                                     "秋A": (4, "B"),
+                                     "秋B": (5, "B"),
+                                     "秋C": (6, "B")
+                                   }.get(first_module)
+
         # 履修登録照会画面から時限、曜日とかを取り出す
         courses = {}
-        r = self.req("RSW0001000-flow")
+        self.req("RSW0001000-flow")
+        r = self.get({
+                       "_eventId":   "search",
+                       "moduleCode": module_code,
+                       "gakkiKbnCode": gakkiKbnCode
+                     })
+
         for js_args in re.findall("DeleteCallA\(([\'\ \,A-Z0-9]+)\)", r.text):
             js_args = js_args.replace("'", "").split(",")
+            if js_args[2] in courses: continue # 1-2限,2-3限など、連続してあるやつ
             courses[js_args[2]] = {
                                     "yobi":  js_args[3],
                                     "jigen": js_args[4],
@@ -116,16 +144,16 @@ class Twins:
         if not course_id in courses:
             raise RequestError()
 
-        r = self.req("RSW0001000-flow", [{
-                                           "_eventId": "delete",
-                                           "yobi":     courses[course_id]["yobi"],
-                                           "jigen":    courses[course_id]["jigen"],
-                                           "nendo":    courses[course_id]["nendo"],
-                                           "jikanwariShozokuCode": courses[course_id]["jikanwariShozokuCode"],
-                                           "jikanwariCode": course_id,
-                                         },{
-                                           "_eventId": "delete"
-                                         }])
+        r = self.post({
+                        "_eventId": "delete",
+                        "yobi":     courses[course_id]["yobi"],
+                        "jigen":    courses[course_id]["jigen"],
+                        "nendo":    courses[course_id]["nendo"],
+                        "jikanwariShozokuCode": courses[course_id]["jikanwariShozokuCode"],
+                        "jikanwariCode": course_id,
+                      }, True)
+
+        r = self.post({"_eventId": "delete"}, True)
 
         errmsg = pq(r.text)(".error").text()
         if errmsg != "":
