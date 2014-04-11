@@ -162,20 +162,35 @@ class Twins:
 
     def get_registered_courses (self):
         """ 履修登録済み授業を取得 """
-        r = self.req("RSW0001000-flow", [{
-                                           "_eventId": "output"
-                                         },{
-                                           "_eventId":         "output",
-                                           "outputType":       "csv",
-                                           "fileEncoding":     "UTF8",
-                                           "logicalDeleteFlg": 0
-                                         }])
+        _reged = []
+        for x in ((1, "A"), (2, "A"), (3, "A"), (4, "B"), (5,"B"), (6, "B")):
+            self.req("RSW0001000-flow")
+            self.get({
+                       "_eventId":     "search",
+                       "moduleCode":   x[0],
+                       "gakkiKbnCode": x[1]
+                    })
+            self.post({ "_eventId": "output" }, True)
+            r = self.post({
+                            "_eventId":         "output",
+                            "outputType":       "csv",
+                            "fileEncoding":     "UTF8",
+                            "logicalDeleteFlg": 0
+                          }, True)
 
-        reged = list(csv.reader(r.text.strip().split("\n")))
-        if reged == []:
+            _reged += list(csv.reader(r.text.strip().split("\n")))
+
+        if _reged == []:
           return []
-        return [ kdb.get_course_info(c[0]) for c in reged ]
 
+        already_appeared = []
+        reged = []
+        for c in [ kdb.get_course_info(c[0]) for c in _reged ]:
+            # 重複を除去
+            if c is None or c["id"] in already_appeared: continue
+            reged.append(c)
+            already_appeared.append(c["id"])
+        return reged
 
     def get_achievements_summary (self):
         """ 履修成績要約の取得 (累計)"""
