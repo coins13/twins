@@ -91,7 +91,7 @@ class Twins:
         first_module = kdb.get_course_info(course_id)["modules"][:2]
         if not first_module.startswith("春") and \
            not first_module.startswith("秋"):
-            raise RequestError() # FIXME: 多分集中科目
+            raise RequestError()
         module_code,gakkiKbnCode = {
                                      "春A": (1, "A"),
                                      "春B": (2, "A"),
@@ -133,7 +133,7 @@ class Twins:
         first_module = kdb.get_course_info(course_id)["modules"][:2]
         if not first_module.startswith("春") and \
            not first_module.startswith("秋"):
-            raise RequestError() # FIXME: 多分集中科目
+            raise RequestError()
         module_code,gakkiKbnCode = {
                                      "春A": (1, "A"),
                                      "春B": (2, "A"),

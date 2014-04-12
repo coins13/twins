@@ -41,6 +41,13 @@ def delete_account_info ():
 
     sys.exit("univ: authorization error (Username or password are incorrect. Perhaps TWINS is down for maintainance.)")
 
+def login_twins ():
+    try:
+        return Twins(get_username(), get_passwd(get_username()))
+    except twins.AuthError:
+       delete_account_info()
+
+
 HELP = """\
 使い方: univ コマンド
 
@@ -63,15 +70,13 @@ def main ():
 
     # XXX: もっときちんとしたコマンド名が欲しい
     if command == "ach":
-        try: t = Twins(get_username(), get_passwd(get_username()))
-        except twins.AuthError: delete_account_info()
+        t = login_twins()
         print("評価\t単位数\t科目名")
         for a in t.get_achievements():
             print("%s\t%s\t%s" % (a["総合評価"], a["単位数"], a["科目名"]))
 
     elif command == "achsum":
-        try: t = Twins(get_username(), get_passwd(get_username()))
-        except twins.AuthError: delete_account_info()
+        t = login_twins()
         for k,v in t.get_achievements_summary().items():
             if k == "GPA":
                 print("%s:\t\t%s" % (k, v))
@@ -79,34 +84,49 @@ def main ():
                 print("%s:\t%s" % (k, v))
 
     elif command == "reg":
-        try: course_id = sys.argv[2]
-        except IndexError: sys.exit(HELP)
-        try: t = Twins(get_username(), get_passwd(get_username()))
-        except twins.AuthError: delete_account_info()
-        try: t.register_course(course_id)
-        except twins.RequestError: sys.exit("履修エラー: 不正、重複またはまだ履修できない科目番号です (%s)" % course_id)
+        try:
+            course_id = sys.argv[2]
+        except IndexError:
+            sys.exit(HELP)
+
+        t = login_twins()
+
+        try:
+            t.register_course(course_id)
+        except twins.RequestError:
+            sys.exit("履修エラー: 不正、重複またはまだ履修できない科目番号です (%s)" % course_id)
 
     elif command == "unreg":
-        try: course_id = sys.argv[2]
-        except IndexError: sys.exit(HELP)
-        try: t = Twins(get_username(), get_passwd(get_username()))
-        except twins.AuthError: delete_account_info()
-        try: t.unregister_course(course_id)
-        except twins.RequestError: sys.exit("履修取り消しエラー: '%s'" % course_id)
+        try:
+            course_id = sys.argv[2]
+        except IndexError:
+            sys.exit(HELP)
+
+        t = login_twins()
+
+        try:
+            t.unregister_course(course_id)
+        except twins.RequestError:
+            sys.exit("履修取り消しエラー: '%s'" % course_id)
 
     elif command == "reged":
-        try: t = Twins(get_username(), get_passwd(get_username()))
-        except twins.AuthError: delete_account_info()
+        t = login_twins()
         print("%s\t%s\t%s\t%s\t%s\t\t%s" % ("科目番号", "単位", "学期", "曜日", "教室", "科目名"))
         for c in t.get_registered_courses():
             if c is None: continue
             print("%s\t\t%s\t%s\t%s\t%s\t\t%s" % (c["id"], c["credit"], c["modules"], c["periods"], c["room"], c["title"]))
 
     elif command == "info":
-        try: course_id = sys.argv[2]
-        except IndexError: sys.exit(HELP)
-        try: c = kdb.get_course_info(course_id)
-        except kdb.DownloadError: sys.exit("failed to download Kdb database")
+        try:
+            course_id = sys.argv[2]
+        except IndexError:
+            sys.exit(HELP)
+
+        try:
+            c = kdb.get_course_info(course_id)
+        except kdb.DownloadError:
+            sys.exit("failed to download Kdb database")
+
         print("科目名:   %s"  % c["title"])
         print("科目番号: %s"  % c["id"])
         print("単位:     %s"  % c["credit"])
@@ -117,17 +137,22 @@ def main ():
         print("注意事項:\n%s" % c["notes"])
 
     elif command == "search":
-        try: query = sys.argv[2]
-        except IndexError: sys.exit(HELP)
-        try: k = kdb.Kdb()
-        except kdb.DownloadError: sys.exit("failed to download Kdb database")
+        try:
+            query = sys.argv[2]
+        except IndexError:
+            sys.exit(HELP)
+
+        try:
+            k = kdb.Kdb()
+        except kdb.DownloadError:
+            sys.exit("failed to download Kdb database")
+
         print("%s\t%s\t%s\t%s\t\t%s" % ("科目番号", "単位", "学期", "曜日", "科目名"))
         for c in k.search(query):
             if c is None: continue
             print("%s\t\t%s\t%s\t%s\t\t%s" % (c["id"], c["credit"], c["modules"], c["periods"], c["title"]))
 
     elif command == "ssh":
-        print("univ: searching for available iMac...")
         host = search_for_ssh_server()
         if host == "":
             sys.exit("univ: Failed to connect. Try again.")
@@ -136,8 +161,7 @@ def main ():
 
     elif command == "次モジュールから本気出す":
         # イースターエッグ: 落単リスト。リフレッシュマンなんていないので考慮してない。
-        try: t = Twins(get_username(), get_passwd(get_username()))
-        except twins.AuthError: delete_account_info()
+        t = login_twins()
         print("単位数\t科目名")
         i=0
         for a in t.get_achievements():

@@ -74,17 +74,13 @@ class Kdb:
 def get_course_info (course_id):
     """ 授業情報を返す。失敗したらNone。 """
 
-# FIXME:
-#   with Kdb as db:
-    if True:
-        db = Kdb()
+    with Kdb() as db:
         keys = "id,title,credit,modules,periods,room,desc,notes"
         cur = db.c.execute("SELECT %s FROM courses WHERE id=?" % keys, (course_id,))
         l = cur.fetchone()
 
         if l is None:
             return None
-
         return {k: v for k,v in zip(keys.split(","), l) }
 
 if __name__ == "__main__":
