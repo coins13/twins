@@ -113,20 +113,24 @@ class Twins:
 
         # 教室情報を追加する
         for c in self.get_registered_courses():
-            html = html.replace(c["id"], "%s<span class='room'>%s</span>" % (c["id"], c["room"]))
+            html = html.replace(c["id"], "%s (<span class='room'>%s</span>)" % (c["id"], c["room"]))
 
+        # 色を変える
+        for from_,to in (("#dddddd", "#deded9"), ("#ffcc99", "#c4efff"), ("#00bfff", "#fefefe")):
+            html = html.replace(from_, to)
         return """
 <!DOCTYPE html>
 <head>
 <meta charset="utf-8">
 <title>時間割 (%(module)s)</title>
 <style>
-
+body { font-family: sans-serif; background: #fff; color: #343434; }
+a{ color: #3f3f3f; text-decoration: none; }
+.rishu-etc-head, .rishu-koma-head { background: #6a8cc7; }
 </style>
 </head><body>
-
+<h2>%(module)s 時間割</h2>
 %(html)s
-
 </body></html>
 """ % locals()
 
