@@ -38,7 +38,7 @@ def delete_account_info ():
     except:
         pass
 
-    sys.exit("univ: authorization error (Username or password are incorrect. Perhaps TWINS is down for maintainance.)")
+    sys.exit("認証エラー: ユーザ名・パスワードがおかしいかTWINSおちちゃってる")
 
 def login_twins ():
     try:
@@ -51,14 +51,15 @@ HELP = """\
 使い方: univ コマンド
 
 コマンドたち:
-  ach               - 成績開示
-  achsum            - 累計成績要約 (履修単位数, 修得単位数, GPA)
-  reg     科目番号  - 履修登録
-  unreg   科目番号  - 履修登録の取り消し
-  info    科目番号  - 科目情報の表示
-  search  文字列    - 授業探し
-  reged             - 履修登録済み授業を表示
-  ssh               - COINSの適当なiMacにSSH接続\
+  ach                  - 成績開示
+  achsum               - 累計成績要約 (履修単位数, 修得単位数, GPA)
+  reg     科目番号     - 履修登録
+  unreg   科目番号     - 履修登録の取り消し
+  info    科目番号     - 科目情報の表示
+  search  文字列       - 授業探し
+  reged                - 履修登録済み授業を表示
+  timetable モジュール - 時間割をhtml形式で出力 
+  ssh                  - COINSの適当なiMacにSSH接続\
 """
 
 def main ():
@@ -81,6 +82,19 @@ def main ():
                 print("%s:\t\t%s" % (k, v))
             else:
                 print("%s:\t%s" % (k, v))
+
+    elif command == "timetable":
+        try:
+            module = sys.argv[2]
+        except IndexError:
+            sys.exit(HELP)
+
+        t = login_twins()
+
+        try:
+            print(t.get_timetable_html(module))
+        except twins.RequestError:
+            sys.exit("なにか起きた")
 
     elif command == "reg":
         try:

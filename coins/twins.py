@@ -83,9 +83,56 @@ class Twins:
         self.s = s
 
 
+    def get_timetable_html (self, module):
+        """ TWINSの表に教室情報を追加したHTMLを返す。"""
+        if not module.startswith("春") and \
+           not module.startswith("秋"):
+            raise RequestError()
+        module_code,gakkiKbnCode = {
+                                     "春A": (1, "A"),
+                                     "春B": (2, "A"),
+                                     "春C": (3, "A"),
+                                     "秋A": (4, "B"),
+                                     "秋B": (5, "B"),
+                                     "秋C": (6, "B")
+                                   }.get(module)
+
+        self.req("RSW0001000-flow")
+        r = self.get({
+                       "_eventId":   "search",
+                       "moduleCode": module_code,
+                       "gakkiKbnCode": gakkiKbnCode
+                    })
+        html =  r.text[r.text.find("<!-- ===== 全体テーブル(開始) ===== -->"): \
+                       r.text.find("<!-- ===== 全体テーブル(終了) ===== -->")]
+
+        # 要らないところを削る
+        for x in ["集中講義を登録", "未登録", \
+                  "春A", "春B", "春C", "秋A", "秋B", "秋C", "夏休", "春休"]:
+            html = html.replace(x, "")
+
+        # 教室情報を追加する
+        for c in self.get_registered_courses():
+            html = html.replace(c["id"], "%s<span class='room'>%s</span>" % (c["id"], c["room"]))
+
+        return """
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8">
+<title>時間割 (%(module)s)</title>
+<style>
+
+</style>
+</head><body>
+
+%(html)s
+
+</body></html>
+""" % locals()
+
+
     def register_course (self, course_id):
         """ 履修申請する """
-        course_id = course_id.upper()
 
         # 何モジュール開講か取得
         first_module = kdb.get_course_info(course_id)["modules"][:2]
