@@ -19,8 +19,9 @@ T-ACTでリファクタリングしてくれると信じてる。
 インストール
 -----------
 ```
-# git clone https://github.com/coins13/univ.git
-# python3 setup.py install
+$ git clone https://github.com/coins13/univ.git
+$ cd univ
+$ python3 setup.py install
 ```
 
 使い方
