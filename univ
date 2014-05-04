@@ -58,7 +58,8 @@ HELP = """\
   info    科目番号     - 科目情報の表示
   search  文字列       - 授業探し
   reged                - 履修登録済み授業を表示
-  timetable モジュール - 時間割をhtml形式で出力 
+  timetable モジュール - 時間割をhtml形式で出力
+  scp foo bar ...      - scp -r ... *.coins.tsukuba.ac.jp:Desktop
   ssh                  - COINSの適当なiMacにSSH接続\
 """
 
@@ -164,6 +165,21 @@ def main ():
         for c in k.search(query):
             if c is None: continue
             print("%s\t\t%s\t%s\t%s\t\t%s" % (c["id"], c["credit"], c["modules"], c["periods"], c["title"]))
+
+    elif command == "scp":
+        try:
+            files = sys.argv[2:]
+        except IndexError:
+            sys.exit(HELP)
+
+        if files == []:
+            sys.exit(HELP)
+
+        host = search_for_ssh_server()
+        if host == "":
+            sys.exit("univ: Failed to connect. Try again.")
+        user = get_username()
+        os.system("scp -r %s %s@%s:Desktop" % (" ".join(files), user, host))
 
     elif command == "ssh":
         host = search_for_ssh_server()
