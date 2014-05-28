@@ -61,6 +61,9 @@ HELP = """\
   timetable モジュール - 時間割をhtml形式で出力
   scp foo bar ...      - scp -r ... *.coins.tsukuba.ac.jp:Desktop
   ssh                  - COINSの適当なiMacにSSH接続\
+
+オプションたち:
+  -t   - 人間に優しい表示 [reged,search]
 """
 
 def main ():
@@ -124,11 +127,27 @@ def main ():
             sys.exit("履修取り消しエラー: '%s'" % course_id)
 
     elif command == "reged":
+        try:
+            if sys.argv[2] == "-t":
+                with_table = True
+        except IndexError:
+            with_table = False
+
         t = login_twins()
-        print("%s\t%s\t%s\t%s\t%s\t\t%s" % ("科目番号", "単位", "学期", "曜日", "教室", "科目名"))
-        for c in t.get_registered_courses():
-            if c is None: continue
-            print("%s\t\t%s\t%s\t%s\t%s\t\t%s" % (c["id"], c["credit"], c["modules"], c["periods"], c["room"], c["title"]))
+
+        if with_table:
+            from prettytable import PrettyTable
+            x = PrettyTable(["科目番号", "単位", "学期", "曜日", "教室", "科目名"])
+            x.padding_width = 1
+            for c in t.get_registered_courses():
+                if c is None: continue
+                x.add_row([c["id"], c["credit"], c["modules"], c["periods"], c["room"], c["title"]])
+            print(x)
+        else:
+            for c in t.get_registered_courses():
+                if c is None: continue
+                print("%s\t\t%s\t%s\t%s\t%s\t\t%s" % (c["id"], c["credit"], c["modules"], c["periods"], c["room"], c["title"]))
+
 
     elif command == "info":
         try:
@@ -151,8 +170,13 @@ def main ():
         print("注意事項:\n%s" % c["notes"])
 
     elif command == "search":
+        with_table = False
         try:
-            query = sys.argv[2]
+            if sys.argv[2] == "-t":
+                with_table = True
+                query = sys.argv[3]
+            else:
+                query = sys.argv[2]
         except IndexError:
             sys.exit(HELP)
 
@@ -161,10 +185,19 @@ def main ():
         except kdb.DownloadError:
             sys.exit("failed to download Kdb database")
 
-        print("%s\t%s\t%s\t%s\t\t%s" % ("科目番号", "単位", "学期", "曜日", "科目名"))
-        for c in k.search(query):
-            if c is None: continue
-            print("%s\t\t%s\t%s\t%s\t\t%s" % (c["id"], c["credit"], c["modules"], c["periods"], c["title"]))
+        if with_table:
+            from prettytable import PrettyTable
+            x = PrettyTable(["科目番号", "単位", "学期", "曜日", "教室", "科目名"])
+            x.padding_width = 1
+            for c in k.search(query):
+                if c is None: continue
+                x.add_row([c["id"], c["credit"], c["modules"], c["periods"], c["room"], c["title"]])
+            print(x)
+        else:
+            print("%s\t%s\t%s\t%s\t\t%s" % ("科目番号", "単位", "学期", "曜日", "科目名"))
+            for c in k.search(query):
+                if c is None: continue
+                print("%s\t\t%s\t%s\t%s\t\t%s" % (c["id"], c["credit"], c["modules"], c["periods"], c["title"]))
 
     elif command == "scp":
         try:
