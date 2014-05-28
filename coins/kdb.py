@@ -26,7 +26,7 @@ class Kdb:
 
         dbfile = os.path.expanduser("~/.course_list.db")
         # 無いかダウンロードしてから１か月経った場合にkdbからダウンロード
-        if not os.path.exists(dbfile) or (time.time() - os.path.getctime(file)) > 3600*30:
+        if not os.path.exists(dbfile) or (time.time() - os.path.getctime(dbfile)) > 3600*30:
             list_ = download_course_list()
 
             # ダウンロードしたのからSQLiteのデータベースを作る
