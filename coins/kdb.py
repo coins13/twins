@@ -1,6 +1,7 @@
 import os
 import sys
 import csv
+import time
 import sqlite3 as sqlite
 import requests
 from coins.misc import *
@@ -23,12 +24,13 @@ class Kdb:
     """ Kernel DeBugger じゃあないよ """
     def __init__ (self):
 
-        # 無いならkdbからダウンロード
-        if not os.path.exists(os.path.expanduser("~/.course_list.db")):
+        dbfile = os.path.expanduser("~/.course_list.db")
+        # 無いかダウンロードしてから１か月経った場合にkdbからダウンロード
+        if not os.path.exists(dbfile) or (time.time() - os.path.getctime(file)) > 3600*30:
             list_ = download_course_list()
 
             # ダウンロードしたのからSQLiteのデータベースを作る
-            c = sqlite.connect(os.path.expanduser("~/.course_list.db"))
+            c = sqlite.connect(dbfile)
             c.execute('''
                         CREATE VIRTUAL TABLE courses USING fts4 (
                                                id text,
@@ -49,7 +51,7 @@ class Kdb:
                      c.execute("INSERT INTO courses VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", l)
             self.c = c
         else:
-            self.c = sqlite.connect(os.path.expanduser("~/.course_list.db"))
+            self.c = sqlite.connect(dbfile)
 
         self.c.commit()
 
