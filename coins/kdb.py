@@ -29,6 +29,9 @@ class Kdb:
         if not os.path.exists(dbfile) or (time.time() - os.path.getctime(dbfile)) > 3600*30:
             list_ = download_course_list()
 
+            if os.path.exists(dbfile):
+                os.unlink(dbfile)
+
             # ダウンロードしたのからSQLiteのデータベースを作る
             c = sqlite.connect(dbfile)
             c.execute('''
