@@ -35,10 +35,10 @@ $ univ help
 ```
 # オペレーティングシステムIIを履修
 $ univ reg GB31801
-# 1,2クラス向け線形代数IIを切る
-$ univ unreg GB10214
-# 春Aの時間割をDropboxに入れておく
-$ univ timetable 春A > ~/Dropbox/時間割.html
+# 確率論を切る
+$ univ unreg GB11601
+# TwinCalでtimetable.icsを作成
+$ univ reged | reged2ics timetable.ics
 # 二年生の時間割で共通するものをほぼ全て履修登録
 $ ./tools/reg_all_in_standard_timetable_for2.py|xargs -n1 ./univ reg
 # A+とった授業
