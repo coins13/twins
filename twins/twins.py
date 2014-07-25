@@ -68,22 +68,22 @@ class Twins:
 
         # 302を返したら成功。200はエラー。作った人は2xxの意味知らないのかな。
         r = s.post(TWINS_URL, data=payload, allow_redirects=False)
-        if r.status_code == 200: raise AuthError("username or password is incorrect")
-        if r.status_code != 302: raise AuthError("behavior of twins may changed (auth #1)")
+        if r.status_code == 200: raise AuthError("ユーザ名かパスワードが違う")
+        if r.status_code != 302: raise AuthError("ついにTWINSの仕様変更が来た")
 
         # リダイレクトその1
         r = s.get(r.headers.get("location"), allow_redirects=False)
-        if r.status_code != 302: raise AuthError("behavior of twins may changed (auth #2)")
+        if r.status_code != 302: raise AuthError("ついにTWINSの仕様変更が来た")
 
         # リダイレクトその2
         r = s.get(r.headers.get("location"), allow_redirects=False)
-        if r.status_code != 200: raise AuthError("behavior of twins may changed (auth #3)")
+        if r.status_code != 200: raise AuthError("ついにTWINSの仕様変更が来た")
 
         # 連絡確認フォームが出てきたら中断する
         if r.text.find("renrakusakiUpdateForm") != -1:
             raise AuthError("Webブラウザから連絡先確認をしよう")
 
-        # authentificated!
+        # 認証できた
         self.s = s
 
 
