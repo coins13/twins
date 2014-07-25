@@ -30,7 +30,7 @@ def get_passwd (username):
             f.write(passwd)
     return passwd
 
-def delete_account_info ():
+def delete_account_info (s):
     try:
         username = open(os.path.expanduser("~/.twins-username")).read()
         os.remove(os.path.expanduser("~/.twins-username"))
@@ -38,13 +38,13 @@ def delete_account_info ():
     except:
         pass
 
-    sys.exit("認証エラー: ユーザ名・パスワードがおかしいかTWINSおちちゃってる")
+    sys.exit("ログインエラー: " + s)
 
 def login_twins ():
     try:
         return Twins(get_username(), get_passwd(get_username()))
-    except twins.AuthError:
-       delete_account_info()
+    except twins.AuthError as e:
+       delete_account_info(str(e))
 
 
 HELP = """\

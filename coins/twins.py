@@ -79,6 +79,10 @@ class Twins:
         r = s.get(r.headers.get("location"), allow_redirects=False)
         if r.status_code != 200: raise AuthError("behavior of twins may changed (auth #3)")
 
+        # 連絡確認フォームが出てきたら中断する
+        if r.text.find("renrakusakiUpdateForm") != -1:
+            raise AuthError("Webブラウザから連絡先確認をしよう")
+
         # authentificated!
         self.s = s
 
