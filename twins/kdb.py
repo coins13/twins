@@ -4,7 +4,7 @@ import csv
 import time
 import sqlite3 as sqlite
 import requests
-from coins.misc import *
+from twins.misc import *
 
 class DownloadError (Exception):
     pass

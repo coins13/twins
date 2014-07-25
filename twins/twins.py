@@ -5,8 +5,8 @@ from urllib.parse import urlparse, parse_qs
 import requests
 from pyquery import PyQuery as pq
 
-import coins.kdb as kdb
-from coins.misc import *
+import twins.kdb as kdb
+from twins.misc import *
 
 TWINS_URL = "https://twins.tsukuba.ac.jp/campusweb/campussquare.do"
 

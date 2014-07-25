@@ -3,9 +3,9 @@
 import os
 import sys
 from getpass import getpass
-import coins.twins as twins
-import coins.kdb as kdb
-from coins.twins import Twins
+import twins.twins as twins
+import twins.kdb as kdb
+from twins import Twins
 from coins.ssh import search_for_ssh_server
 
 def get_username ():
