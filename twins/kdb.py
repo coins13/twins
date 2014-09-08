@@ -2,9 +2,46 @@ import os
 import sys
 import csv
 import time
-import sqlite3 as sqlite
+from sqlalchemy import Column, Integer, String, Float, or_, create_engine
+from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
 import requests
 from twins.misc import *
+
+DB_URL = "sqlite:///{0}/.course_list.db".format(os.path.expanduser("~"))
+Base = declarative_base()
+
+class Course (Base):
+    __tablename__ = "courses"
+    id_       = Column(Integer, primary_key=True, autoincrement=True)
+    id        = Column(String)
+    title     = Column(String)
+    credit    = Column(String)
+    target_yr = Column(String)
+    modules   = Column(String)
+    periods   = Column(String)
+    room      = Column(String)
+    teachers  = Column(String)
+    desc      = Column(String)
+    notes     = Column(String)
+    crauditor = Column(String)  # 科目履修生
+    reason    = Column(String)  # よくわからん
+
+    def __init__ (self, id, title, credit, target_yr, modules, periods, room,
+                  teachers, desc, notes, crauditor, reason):
+        self.id        = id
+        self.title     = title
+        self.credit    = credit
+        self.target_yr = target_yr
+        self.modules   = modules
+        self.periods   = periods
+        self.room      = room
+        self.teachers  = teachers
+        self.desc      = desc
+        self.notes     = notes
+        self.crauditor = crauditor
+        self.reason    = reason
+
 
 class DownloadError (Exception):
     pass
@@ -19,6 +56,11 @@ def download_course_list ():
      return list(csv.reader(r.content.decode("shift_jis").strip().split("\n")))
 
 
+def open_db (url):
+    engine = create_engine(url)
+    db = scoped_session(sessionmaker(bind=engine))
+    Base.metadata.create_all(engine)
+    return db
 
 class Kdb:
     """ Kernel DeBugger じゃあないよ """
@@ -32,47 +74,36 @@ class Kdb:
             if os.path.exists(dbfile):
                 os.unlink(dbfile)
 
-            # ダウンロードしたのからSQLiteのデータベースを作る
-            c = sqlite.connect(dbfile)
-            c.execute('''
-                        CREATE VIRTUAL TABLE courses USING fts4 (
-                                               id text,
-                                               title text,
-                                               credit real,
-                                               target_yr text,
-                                               modules text,
-                                               periods text,
-                                               room text,
-                                               teachers text,
-                                               desc text,
-                                               notes text,
-                                               kamoku_rishu_sei text, -- よくわからん
-                                               reason text -- よくわからん
-                                             )
-                      ''')
+            # ダウンロードしたのからデータベースを作る
+            self.db = open_db(DB_URL)
             for l in list_:
-                     c.execute("INSERT INTO courses VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", l)
-            self.c = c
+                     self.db.add(Course(*l))
         else:
-            self.c = sqlite.connect(dbfile)
+            self.db = open_db(DB_URL)
 
-        self.c.commit()
+        self.db.commit()
 
     def __enter__ (self):
         return self
 
     def __exit__ (self, exc_type, exc_value, traceback):
-        self.c.commit()
-        self.c.close()
+        self.db.commit()
 
     def search (self, query):
-        keys = "id,title,credit,modules,periods,room,desc,notes"
-        # FIXME: SQL injectionするアホ対策が必要
-        sql  = "SELECT %s FROM courses WHERE " % keys
-        sql += " OR ".join([k + " LIKE '%" + query + "%'" for k in keys.split(",")])
+        all = self.db.query(Course).filter(or_(
+                Course.id.like('%{0}%'.format(query)),
+                Course.title.like('%{0}%'.format(query)),
+                Course.credit.like('%{0}%'.format(query)),
+                Course.modules.like('%{0}%'.format(query)),
+                Course.periods.like('%{0}%'.format(query)),
+                Course.room.like('%{0}%'.format(query)),
+                Course.desc.like('%{0}%'.format(query)),
+                Course.notes.like('%{0}%'.format(query))
+              )).all()
+
         matched = []
-        for c in self.c.execute(sql).fetchall():
-            matched.append({k: v for k,v in zip(keys.split(","), c) })
+        for c in all:
+            matched.append(vars(c))
         return matched
 
 
