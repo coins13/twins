@@ -1,4 +1,4 @@
-univ
+twins
 ===
 言葉に出来ない素晴らしいユーザインタフェースを持つ、某TW○NSのスクレイピングとかしてくれるすごいやつ。
 T-ACTでリファクタリングしてくれると信じてる。
@@ -19,30 +19,30 @@ T-ACTでリファクタリングしてくれると信じてる。
 インストール
 -----------
 ```
-$ git clone https://github.com/coins13/univ.git
-$ cd univ
+$ git clone https://github.com/coins13/twins.git
+$ cd twins
 $ python3 setup.py install
 ```
 
 使い方
 -----
 ```
-$ univ help
+$ twins help
 ```
 
 用例
 -----
 ```
 # オペレーティングシステムIIを履修
-$ univ reg GB31801
+$ twins reg GB31801
 # 確率論を切る
-$ univ unreg GB11601
+$ twins unreg GB11601
 # TwinCalでtimetable.icsを作成
-$ univ reged | reged2ics timetable.ics
+$ twins reged | reged2ics timetable.ics
 # 二年生の時間割で共通するものをほぼ全て履修登録
-$ ./tools/reg_all_in_standard_timetable_for2.py|xargs -n1 ./univ reg
+$ ./tools/reg_all_in_standard_timetable_for2.py|xargs -n1 ./twins reg
 # A+とった授業
-$ univ ach|awk '$1 == "A+"{ print }'
+$ twins ach|awk '$1 == "A+"{ print }'
 # 母親にGPAを教える
-$ univ achsum|awk '$1 == "GPA:"{ print $2 }'|mail -s "my GPA" mom@example.com
+$ twins achsum|awk '$1 == "GPA:"{ print $2 }'|mail -s "my GPA" mom@example.com
 ```

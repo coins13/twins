@@ -48,7 +48,7 @@ def login_twins ():
 
 
 HELP = """\
-使い方: univ コマンド
+使い方: twins コマンド
 
 コマンドたち:
   ach                  - 成績開示
@@ -210,14 +210,14 @@ def main ():
 
         host = search_for_ssh_server()
         if host == "":
-            sys.exit("univ: Failed to connect. Try again.")
+            sys.exit("twins: Failed to connect. Try again.")
         user = get_username()
         os.system("scp -r %s %s@%s:Desktop" % (" ".join(files), user, host))
 
     elif command == "ssh":
         host = search_for_ssh_server()
         if host == "":
-            sys.exit("univ: Failed to connect. Try again.")
+            sys.exit("twins: Failed to connect. Try again.")
         user = get_username()
         os.system("ssh -l %s %s" % (user, host))
 
