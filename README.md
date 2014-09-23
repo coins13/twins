@@ -1,7 +1,6 @@
 twins
 ===
-言葉に出来ない素晴らしいユーザインタフェースを持つ、某TW○NSのスクレイピングとかしてくれるすごいやつ。
-T-ACTでリファクタリングしてくれると信じてる。
+履修登録。その全てを極めるために。
 
 機能
 ---
@@ -27,7 +26,7 @@ $ python3 setup.py install
 使い方
 -----
 ```
-$ twins help
+$ twins --help
 ```
 
 用例
@@ -38,11 +37,9 @@ $ twins reg GB31801
 # 確率論を切る
 $ twins unreg GB11601
 # TwinCalでtimetable.icsを作成
-$ twins reged | reged2ics timetable.ics
-# 二年生の時間割で共通するものをほぼ全て履修登録
-$ ./tools/reg_all_in_standard_timetable_for2.py|xargs -n1 ./twins reg
+$ twins reged | reged2ics > timetable.ics
 # A+とった授業
-$ twins ach|awk '$1 == "A+"{ print }'
+$ twins stat | awk '$1 == "A+"{ print }'
 # 母親にGPAを教える
-$ twins achsum|awk '$1 == "GPA:"{ print $2 }'|mail -s "my GPA" mom@example.com
+$ twins sum | awk '$1 == "GPA:"{ print $2 }' | mail -s "my GPA" mom@example.com
 ```

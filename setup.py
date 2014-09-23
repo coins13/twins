@@ -5,7 +5,7 @@ with open("README.md") as f:
 
 setup(
     name="twins",
-    version="31.0",
+    version="100.0",
     description="A command line utility for coins",
     load_description=long_description,
     url="http://github.com/coins13/twins",

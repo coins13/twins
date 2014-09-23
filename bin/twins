@@ -2,11 +2,15 @@
 # coding: utf-8
 import os
 import sys
+import argparse
 from getpass import getpass
+
+# for debugging
+sys.path.insert(0, os.getcwd())
+
 import twins.twins as twins
 import twins.kdb as kdb
 from twins import Twins
-from coins.ssh import search_for_ssh_server
 
 def get_username ():
     try:
@@ -18,12 +22,11 @@ def get_username ():
 
 
 def get_passwd (username):
-    """ OS X のキーリングがよくわからないので、ホームディレクトリに0600なファイルを作る。"""
     try:
         passwd = open(os.path.expanduser("~/.twins-passwd")).read()
     except IOError:
+        # パスワードを~/.twins-passwordに保存する
         passwd = getpass("enter passwd: ")
-        # XXX
         open(os.path.expanduser("~/.twins-passwd"), "w").close()
         os.chmod(os.path.expanduser("~/.twins-passwd"), 0o600)
         with open(os.path.expanduser("~/.twins-passwd"), "w") as f:
@@ -40,203 +43,166 @@ def delete_account_info (s):
 
     sys.exit("ログインエラー: " + s)
 
+
 def login_twins ():
     try:
         return Twins(get_username(), get_passwd(get_username()))
     except twins.AuthError as e:
        delete_account_info(str(e))
 
+#
+#
+#  サブコマンド
+#
+#
+def stats (args):
+    t = login_twins()
+    print("評価\t単位数\t科目名")
+    for a in t.get_achievements():
+        print("%s\t%s\t%s" % (a["総合評価"], a["単位数"], a["科目名"]))
 
-HELP = """\
-使い方: twins コマンド
 
-コマンドたち:
-  ach                  - 成績開示
-  achsum               - 累計成績要約 (履修単位数, 修得単位数, GPA)
-  reg     科目番号     - 履修登録
-  unreg   科目番号     - 履修登録の取り消し
-  info    科目番号     - 科目情報の表示
-  search  文字列       - 授業探し
-  reged                - 履修登録済み授業を表示
-  timetable モジュール - 時間割をhtml形式で出力
-  scp foo bar ...      - scp -r ... *.coins.tsukuba.ac.jp:Desktop
-  ssh                  - COINSの適当なiMacにSSH接続\
+def sum (args):
+    t = login_twins()
+    for k,v in t.get_achievements_summary().items():
+        if k == "GPA":
+            print("%s:\t\t%s" % (k, v))
+        else:
+            print("%s:\t%s" % (k, v))
 
-オプションたち:
-  -t   - 人間に優しい表示 [reged,search]
-"""
+
+def timetable (args):
+    module = args["module"]
+    t = login_twins()
+
+    try:
+        print(t.get_timetable_html(module))
+    except twins.RequestError:
+        sys.exit("エラー: 上手くいかなかった")
+
+
+def reg (args):
+    course_id = args["course_id"]
+    t = login_twins()
+
+    try:
+        t.register_course(course_id)
+    except twins.RequestError:
+        sys.exit("履修エラー: 不正、重複またはまだ履修できない科目番号です (%s)" % course_id)
+
+
+def unreg (args):
+    course_id = args["course_id"]
+    t = login_twins()
+
+    try:
+        t.unregister_course(course_id)
+    except twins.RequestError:
+        sys.exit("履修取り消しエラー: '%s'" % course_id)
+
+
+def reged (args):
+    with_table = args["table"]
+
+    t = login_twins()
+
+    if with_table:
+        from prettytable import PrettyTable
+        x = PrettyTable(["科目番号", "単位", "学期", "曜日", "教室", "科目名"])
+        x.padding_width = 1
+        for c in t.get_registered_courses():
+            if c is None: continue
+            x.add_row([c["id"], c["credit"], c["modules"], c["periods"], c["room"], c["title"]])
+        print(x)
+    else:
+        for c in t.get_registered_courses():
+            if c is None: continue
+            print("%s\t\t%s\t%s\t%s\t%s\t\t%s" % (c["id"], c["credit"], c["modules"], c["periods"], c["room"], c["title"]))
+
+
+def info (args):
+    course_id = args["id"]
+
+    try:
+        c = kdb.get_course_info(course_id)
+    except kdb.DownloadError:
+        sys.exit("failed to download Kdb database")
+
+    print("科目名:   %s"  % c["title"])
+    print("科目番号: %s"  % c["id"])
+    print("単位:     %s"  % c["credit"])
+    print("学期:     %s"  % c["modules"])
+    print("教室:     %s"  % c["room"])
+    print("時限:     %s"  % c["periods"])
+    print("概要:\n%s"     % c["desc"])
+    print("注意事項:\n%s" % c["notes"])
+
+
+def search (args):
+    with_table = args["table"]
+    query = args["query"]
+
+    try:
+        k = kdb.Kdb()
+    except kdb.DownloadError:
+        sys.exit("failed to download Kdb database")
+
+    if with_table:
+        from prettytable import PrettyTable
+        x = PrettyTable(["科目番号", "単位", "学期", "曜日", "教室", "科目名"])
+        x.padding_width = 1
+        for c in k.search(query):
+            if c is None: continue
+            x.add_row([c["id"], c["credit"], c["modules"], c["periods"], c["room"], c["title"]])
+        print(x)
+    else:
+        print("%s\t%s\t%s\t%s\t\t%s" % ("科目番号", "単位", "学期", "曜日", "科目名"))
+        for c in k.search(query):
+            if c is None: continue
+            print("%s\t\t%s\t%s\t%s\t\t%s" % (c["id"], c["credit"], c["modules"], c["periods"], c["title"]))
+
 
 def main ():
-    try:
-        command = sys.argv[1]
-    except IndexError:
-        sys.exit(HELP)
+    parser = argparse.ArgumentParser(description="Command-line interface to TWINS")
+    subparsers = parser.add_subparsers()
 
-    # XXX: もっときちんとしたコマンド名が欲しい
-    if command == "ach":
-        t = login_twins()
-        print("評価\t単位数\t科目名")
-        for a in t.get_achievements():
-            print("%s\t%s\t%s" % (a["総合評価"], a["単位数"], a["科目名"]))
+    parser_stats = subparsers.add_parser("stats", help="成績開示")
+    parser_stats.set_defaults(func=stats)
 
-    elif command == "achsum":
-        t = login_twins()
-        for k,v in t.get_achievements_summary().items():
-            if k == "GPA":
-                print("%s:\t\t%s" % (k, v))
-            else:
-                print("%s:\t%s" % (k, v))
+    parser_sum = subparsers.add_parser("sum", help="累計成績要約 (履修単位数, 修得単位数, GPA)")
+    parser_sum.set_defaults(func=sum)
 
-    elif command == "timetable":
-        try:
-            module = sys.argv[2]
-        except IndexError:
-            sys.exit(HELP)
+    parser_reged = subparsers.add_parser("reged", help="履修登録済み科目一覧")
+    parser_reged.add_argument("--table", action="store_true", help="人にやさしい表示")
+    parser_reged.set_defaults(func=reged)
 
-        t = login_twins()
+    parser_reg = subparsers.add_parser("reg", help="履修登録")
+    parser_reg.add_argument("id", help="科目番号")
+    parser_reg.set_defaults(func=reg)
 
-        try:
-            print(t.get_timetable_html(module))
-        except twins.RequestError:
-            sys.exit("なにか起きた")
+    parser_unreg = subparsers.add_parser("unreg", help="履修取り消し")
+    parser_unreg.add_argument("id", help="科目番号")
+    parser_unreg.set_defaults(func=unreg)
 
-    elif command == "reg":
-        try:
-            course_id = sys.argv[2]
-        except IndexError:
-            sys.exit(HELP)
+    parser_info = subparsers.add_parser("info", help="科目情報")
+    parser_info.add_argument("id", help="科目番号")
+    parser_info.set_defaults(func=info)
 
-        t = login_twins()
+    parser_search = subparsers.add_parser("search", help="科目検索")
+    parser_search.add_argument("query", help="文字列")
+    parser_search.add_argument("--table", action="store_true", help="人にやさしい表示")
+    parser_search.set_defaults(func=search)
 
-        try:
-            t.register_course(course_id)
-        except twins.RequestError:
-            sys.exit("履修エラー: 不正、重複またはまだ履修できない科目番号です (%s)" % course_id)
+    parser_timetable = subparsers.add_parser("timetable", help="時間割を表示")
+    parser_timetable.add_argument("module", help="モジュール名 (例: 秋A)")
+    parser_timetable.set_defaults(func=timetable)
 
-    elif command == "unreg":
-        try:
-            course_id = sys.argv[2]
-        except IndexError:
-            sys.exit(HELP)
+    args = parser.parse_args()
 
-        t = login_twins()
+    if not "func" in args:
+       parser.parse_args("--help".split())
 
-        try:
-            t.unregister_course(course_id)
-        except twins.RequestError:
-            sys.exit("履修取り消しエラー: '%s'" % course_id)
-
-    elif command == "reged":
-        try:
-            if sys.argv[2] == "-t":
-                with_table = True
-        except IndexError:
-            with_table = False
-
-        t = login_twins()
-
-        if with_table:
-            from prettytable import PrettyTable
-            x = PrettyTable(["科目番号", "単位", "学期", "曜日", "教室", "科目名"])
-            x.padding_width = 1
-            for c in t.get_registered_courses():
-                if c is None: continue
-                x.add_row([c["id"], c["credit"], c["modules"], c["periods"], c["room"], c["title"]])
-            print(x)
-        else:
-            for c in t.get_registered_courses():
-                if c is None: continue
-                print("%s\t\t%s\t%s\t%s\t%s\t\t%s" % (c["id"], c["credit"], c["modules"], c["periods"], c["room"], c["title"]))
-
-
-    elif command == "info":
-        try:
-            course_id = sys.argv[2]
-        except IndexError:
-            sys.exit(HELP)
-
-        try:
-            c = kdb.get_course_info(course_id)
-        except kdb.DownloadError:
-            sys.exit("failed to download Kdb database")
-
-        print("科目名:   %s"  % c["title"])
-        print("科目番号: %s"  % c["id"])
-        print("単位:     %s"  % c["credit"])
-        print("学期:     %s"  % c["modules"])
-        print("教室:     %s"  % c["room"])
-        print("時限:     %s"  % c["periods"])
-        print("概要:\n%s"     % c["desc"])
-        print("注意事項:\n%s" % c["notes"])
-
-    elif command == "search":
-        with_table = False
-        try:
-            if sys.argv[2] == "-t":
-                with_table = True
-                query = sys.argv[3]
-            else:
-                query = sys.argv[2]
-        except IndexError:
-            sys.exit(HELP)
-
-        try:
-            k = kdb.Kdb()
-        except kdb.DownloadError:
-            sys.exit("failed to download Kdb database")
-
-        if with_table:
-            from prettytable import PrettyTable
-            x = PrettyTable(["科目番号", "単位", "学期", "曜日", "教室", "科目名"])
-            x.padding_width = 1
-            for c in k.search(query):
-                if c is None: continue
-                x.add_row([c["id"], c["credit"], c["modules"], c["periods"], c["room"], c["title"]])
-            print(x)
-        else:
-            print("%s\t%s\t%s\t%s\t\t%s" % ("科目番号", "単位", "学期", "曜日", "科目名"))
-            for c in k.search(query):
-                if c is None: continue
-                print("%s\t\t%s\t%s\t%s\t\t%s" % (c["id"], c["credit"], c["modules"], c["periods"], c["title"]))
-
-    elif command == "scp":
-        try:
-            files = sys.argv[2:]
-        except IndexError:
-            sys.exit(HELP)
-
-        if files == []:
-            sys.exit(HELP)
-
-        host = search_for_ssh_server()
-        if host == "":
-            sys.exit("twins: Failed to connect. Try again.")
-        user = get_username()
-        os.system("scp -r %s %s@%s:Desktop" % (" ".join(files), user, host))
-
-    elif command == "ssh":
-        host = search_for_ssh_server()
-        if host == "":
-            sys.exit("twins: Failed to connect. Try again.")
-        user = get_username()
-        os.system("ssh -l %s %s" % (user, host))
-
-    elif command == "次モジュールから本気出す":
-        # イースターエッグ: 落単リスト。リフレッシュマンなんていないので考慮してない。
-        t = login_twins()
-        print("単位数\t科目名")
-        i=0
-        for a in t.get_achievements():
-            if a["総合評価"] != "D": continue
-            i += float(a["単位数"])
-            print("%s\t%s" % (a["単位数"], a["科目名"]))
-        if i > 15: print("がんばろう")
-
-    elif command == "help":
-        sys.exit(HELP)
-
-    else:
-        sys.exit(HELP)
+    args.func(vars(args))
 
 if __name__== "__main__":
     try:

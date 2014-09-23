@@ -89,6 +89,9 @@ class Kdb:
     def __exit__ (self, exc_type, exc_value, traceback):
         self.db.commit()
 
+    def search_by_id (self, course_id):
+        return vars(self.db.query(Course).filter(Course.id == course_id).one())
+
     def search (self, query):
         all = self.db.query(Course).filter(or_(
                 Course.id.like('%{0}%'.format(query)),
@@ -111,13 +114,7 @@ def get_course_info (course_id):
     """ 授業情報を返す。失敗したらNone。 """
 
     with Kdb() as db:
-        keys = "id,title,credit,modules,periods,room,desc,notes"
-        cur = db.c.execute("SELECT %s FROM courses WHERE id=?" % keys, (course_id,))
-        l = cur.fetchone()
-
-        if l is None:
-            return None
-        return {k: v for k,v in zip(keys.split(","), l) }
+        return db.search_by_id(course_id)
 
 if __name__ == "__main__":
     try:
