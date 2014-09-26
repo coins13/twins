@@ -128,6 +128,9 @@ def info (args):
     except kdb.DownloadError:
         sys.exit("failed to download Kdb database")
 
+    if c is None:
+        sys.exit("twins: no such a course: " + id)
+
     print("科目名:   %s"  % c["title"])
     print("科目番号: %s"  % c["id"])
     print("単位:     %s"  % c["credit"])

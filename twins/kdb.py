@@ -4,6 +4,7 @@ import csv
 import time
 from sqlalchemy import Column, Integer, String, Float, or_, create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.ext.declarative import declarative_base
 import requests
 from twins.misc import *
@@ -90,7 +91,12 @@ class Kdb:
         self.db.commit()
 
     def search_by_id (self, course_id):
-        return vars(self.db.query(Course).filter(Course.id == course_id).one())
+        try:
+            v = self.db.query(Course).filter(Course.id == course_id.upper()).one()
+        except NoResultFound:
+            return None
+        else:
+            return vars(v)
 
     def search (self, query):
         all = self.db.query(Course).filter(or_(
