@@ -82,23 +82,23 @@ def timetable (args):
 
 
 def reg (args):
-    course_id = args["course_id"]
+    id = args["id"]
     t = login_twins()
 
     try:
-        t.register_course(course_id)
+        t.register_course(id)
     except twins.RequestError:
-        sys.exit("履修エラー: 不正、重複またはまだ履修できない科目番号です (%s)" % course_id)
+        sys.exit("履修エラー: 不正、重複またはまだ履修できない科目番号です (%s)" % id)
 
 
 def unreg (args):
-    course_id = args["course_id"]
+    id = args["id"]
     t = login_twins()
 
     try:
-        t.unregister_course(course_id)
+        t.unregister_course(id)
     except twins.RequestError:
-        sys.exit("履修取り消しエラー: '%s'" % course_id)
+        sys.exit("履修取り消しエラー: '%s'" % id)
 
 
 def reged (args):
@@ -121,10 +121,10 @@ def reged (args):
 
 
 def info (args):
-    course_id = args["id"]
+    id = args["id"]
 
     try:
-        c = kdb.get_course_info(course_id)
+        c = kdb.get_course_info(id)
     except kdb.DownloadError:
         sys.exit("failed to download Kdb database")
 
