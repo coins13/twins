@@ -6,7 +6,7 @@ import requests
 csv= ",\n".join([ l.split()[0] for l in sys.stdin.read().splitlines() ])
 
 # XXX
-with open("RSReferCsv", "w") as f:
+with open("RSReferCsv.csv", "w") as f:
     f.write(csv)
 
 # TwinCalに作ってもらう
@@ -15,4 +15,4 @@ with open("RSReferCsv") as f:
     r = requests.post("http://gam0022.net/app/twincal/parse.rb", headers={"User-Agent": user_agent}, files={"file": f})
 
 os.remove("RSReferCsv.csv")
-print(r.content)
+print(r.text)
