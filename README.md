@@ -1,7 +1,8 @@
 twins
 ===
+履修。その全てを極めるために。  
 ![what we want](http://imgs.xkcd.com/comics/university_website.png)
-履修。その全てを極めるために。
+  
 
 機能
 ---
