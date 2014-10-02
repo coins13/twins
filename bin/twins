@@ -11,6 +11,7 @@ sys.path.insert(0, os.getcwd())
 
 import twins.twins as twins
 import twins.kdb as kdb
+import twins.twincal
 from twins import Twins
 
 def get_username ():
@@ -111,21 +112,24 @@ def unreg (args):
 
 def reged (args):
     with_table = args["table"]
-
+    ics = args["ics"]
     t = login_twins()
 
-    if with_table:
-        from prettytable import PrettyTable
-        x = PrettyTable(["科目番号", "単位", "学期", "曜日", "教室", "科目名"])
-        x.padding_width = 1
-        for c in t.get_registered_courses():
-            if c is None: continue
-            x.add_row([c["id"], c["credit"], c["modules"], c["periods"], c["room"], c["title"]])
-        print(x)
+    if ics:
+        print(twins.twincal.generate_ics(t.get_registered_courses()))
     else:
-        for c in t.get_registered_courses():
-            if c is None: continue
-            print("%s\t\t%s\t%s\t%s\t%s\t\t%s" % (c["id"], c["credit"], c["modules"], c["periods"], c["room"], c["title"]))
+        if with_table:
+            from prettytable import PrettyTable
+            x = PrettyTable(["科目番号", "単位", "学期", "曜日", "教室", "科目名"])
+            x.padding_width = 1
+            for c in t.get_registered_courses():
+                if c is None: continue
+                x.add_row([c["id"], c["credit"], c["modules"], c["periods"], c["room"], c["title"]])
+            print(x)
+        else:
+            for c in t.get_registered_courses():
+                if c is None: continue
+                print("%s\t\t%s\t%s\t%s\t%s\t\t%s" % (c["id"], c["credit"], c["modules"], c["periods"], c["room"], c["title"]))
 
 
 def info (args):
@@ -185,6 +189,7 @@ def main ():
 
     parser_reged = subparsers.add_parser("reged", help="履修登録済み科目一覧")
     parser_reged.add_argument("--table", action="store_true", help="人にやさしい表示")
+    parser_reged.add_argument("--ics", action="store_true", help="TwinCalを使ってICS形式で出力")
     parser_reged.set_defaults(func=reged)
 
     parser_reg = subparsers.add_parser("reg", help="履修登録")

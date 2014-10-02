@@ -33,7 +33,7 @@ $ twins --help
 
 用例
 -----
-```
+```sh
 # オペレーティングシステムIIを履修
 $ twins reg GB31801
 # 確率論を切る
@@ -41,7 +41,7 @@ $ twins unreg GB11601
 # 秋Aの時間割を見る
 $ twins timetable 秋A
 # TwinCalでtimetable.icsを作成
-$ twins reged | reged2ics > timetable.ics
+$ twins reged --ics > timetable.ics
 # A+とった授業
 $ twins stat | awk '$1 == "A+"{ print }'
 # 母親にGPAを教える
