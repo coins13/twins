@@ -120,7 +120,7 @@ def get_course_info (course_id):
     """ 授業情報を返す。失敗したらNone。 """
 
     with Kdb() as db:
-        return db.search_by_id(course_id)
+        return db.search_by_id(course_id.upper())
 
 if __name__ == "__main__":
     try:
