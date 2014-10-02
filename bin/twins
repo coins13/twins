@@ -4,6 +4,7 @@ import os
 import sys
 import argparse
 from getpass import getpass
+from subprocess import Popen,PIPE
 
 # for debugging
 sys.path.insert(0, os.getcwd())
@@ -76,10 +77,17 @@ def timetable (args):
     t = login_twins()
 
     try:
-        print(t.get_timetable_html(module))
+        html = t.get_timetable_html(module)
     except twins.RequestError:
         sys.exit("エラー: 上手くいかなかった")
 
+    try:
+        p = Popen(["w3m", "-T", "text/html"], stdin=PIPE)
+        p.stdin.write(bytes(html, "utf-8"))
+        p.stdin = sys.stdin
+        p.wait()
+    except Exception as e:
+        sys.exit("エラー: " + str(e))
 
 def reg (args):
     id = args["id"]

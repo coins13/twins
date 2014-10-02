@@ -117,7 +117,11 @@ class Twins:
 
         # 教室情報を追加する
         for c in self.get_registered_courses():
-            html = html.replace(c["id"], "%s (<span class='room'>%s</span>)" % (c["id"], c["room"]))
+            if c["room"] != "":
+              room = "(<span class='room'>%s</span>)" % c["room"]
+            else:
+              room = ""
+            html = html.replace(c["id"], c["id"] + "</a><br>" + room)
 
         # 色を変える
         for from_,to in (("#dddddd", "#deded9"), ("#ffcc99", "#c4efff"), ("#00bfff", "#fefefe")):

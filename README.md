@@ -5,6 +5,7 @@ twins
 機能
 ---
 - 履修登録・取り消し
+- 時間割表示
 - 科目検索
 - 成績開示
 - 累計成績要約 (履修単位数, 修得単位数, GPA)
@@ -13,6 +14,7 @@ twins
 必要なもの
 ---------
 - *nix
+- w3m
 - Python3
 
 インストール
@@ -36,6 +38,8 @@ $ twins --help
 $ twins reg GB31801
 # 確率論を切る
 $ twins unreg GB11601
+# 秋Aの時間割を見る
+$ twins timetable 秋A
 # TwinCalでtimetable.icsを作成
 $ twins reged | reged2ics > timetable.ics
 # A+とった授業
