@@ -10,7 +10,7 @@ setup(
     load_description=long_description,
     url="http://github.com/coins13/twins",
     py_modules=find_packages(),
-    scripts=["bin/twins", "bin/reged2ics"],
+    scripts=["bin/twins"],
     install_requires=open("requirements.txt").read().split('\n'),
     packages=find_packages(),
     classfiers = [
