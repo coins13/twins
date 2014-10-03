@@ -17,6 +17,7 @@ class Course (Base):
     id_       = Column(Integer, primary_key=True, autoincrement=True)
     id        = Column(String)
     title     = Column(String)
+    method    = Column(String) # 授業方法: 謎の数字
     credit    = Column(String)
     target_yr = Column(String)
     modules   = Column(String)
@@ -24,12 +25,14 @@ class Course (Base):
     room      = Column(String)
     teachers  = Column(String)
     desc      = Column(String)
-    notes     = Column(String)
+    remarks   = Column(String)
     crauditor = Column(String)  # 科目履修生
     reason    = Column(String)  # よくわからん
+    title_en  = Column(String)  # 授業名 (英語)
+    datetime  = Column(String)  # 謎の日時: "YYYY-MM-DD h:m:s"
 
-    def __init__ (self, id, title, credit, target_yr, modules, periods, room,
-                  teachers, desc, notes, crauditor, reason):
+    def __init__ (self, id, title, method, credit, target_yr, modules, periods, room,
+                  teachers, desc, remarks, crauditor, reason, title_en, datetime):
         self.id        = id
         self.title     = title
         self.credit    = credit
@@ -39,9 +42,11 @@ class Course (Base):
         self.room      = room
         self.teachers  = teachers
         self.desc      = desc
-        self.notes     = notes
+        self.remarks   = remarks
         self.crauditor = crauditor
         self.reason    = reason
+        self.title_en  = title_en
+        self.datetime  = datetime
 
 
 class DownloadError (Exception):
@@ -107,7 +112,7 @@ class Kdb:
                 Course.periods.like('%{0}%'.format(query)),
                 Course.room.like('%{0}%'.format(query)),
                 Course.desc.like('%{0}%'.format(query)),
-                Course.notes.like('%{0}%'.format(query))
+                Course.remarks.like('%{0}%'.format(query))
               )).all()
 
         matched = []

@@ -150,7 +150,7 @@ def info (args):
     print("教室:     %s"  % c["room"])
     print("時限:     %s"  % c["periods"])
     print("概要:\n%s"     % c["desc"])
-    print("注意事項:\n%s" % c["notes"])
+    print("注意事項:\n%s" % c["remarks"])
 
 
 def search (args):
