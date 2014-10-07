@@ -22,9 +22,7 @@ twins
 インストール
 -----------
 ```
-$ git clone https://github.com/coins13/twins.git
-$ cd twins
-$ python3 setup.py install
+$ pip3 install twins
 ```
 
 使い方
