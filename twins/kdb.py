@@ -35,6 +35,7 @@ class Course (Base):
                   teachers, desc, remarks, crauditor, reason, title_en, datetime):
         self.id        = id
         self.title     = title
+        self.method    = method
         self.credit    = credit
         self.target_yr = target_yr
         self.modules   = modules
