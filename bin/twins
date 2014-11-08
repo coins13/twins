@@ -99,6 +99,9 @@ def reg (args):
     except twins.RequestError:
         sys.exit("履修エラー: 不正、重複またはまだ履修できない科目番号です (%s)" % id)
 
+    if t.get_registered_credits() > 45.:
+        sys.stderr.write("警告: 登録単位数の合計が45を超えちゃってる\n")
+
 
 def unreg (args):
     id = args["id"]
@@ -114,6 +117,9 @@ def reged (args):
     with_table = args["table"]
     ics = args["ics"]
     t = login_twins()
+
+    if t.get_registered_credits() > 45.:
+        sys.stderr.write("警告: 登録単位数の合計が45を超えちゃってる\n")
 
     if ics:
         print(twins.twincal.generate_ics(t.get_registered_courses()))

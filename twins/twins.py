@@ -240,6 +240,24 @@ a{ color: #3f3f3f; text-decoration: none; }
            raise RequestError()
 
 
+    def get_registered_credits (self):
+        """ 登録単位数合計の取得 """
+        _reged = []
+        self.req("RSW0001000-flow")
+        r = self.get({
+                       "_eventId":     "search",
+                       "moduleCode":   1,
+                       "gakkiKbnCode": "A"
+                   })
+        html = r.text
+
+        # XXX
+        for l in html.split("\n"):
+            if "単位</td>" in l:
+                return float(l.strip().replace('<td align="center">', "").replace("単位</td>", ""))
+
+        return 0. # FIXME
+
     def get_registered_courses (self):
         """ 履修登録済み授業を取得 """
         _reged = []
