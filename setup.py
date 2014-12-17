@@ -3,7 +3,8 @@ from setuptools import setup, find_packages
 setup(
     name="twins",
     version="100.2",
-    description="Command-line interface to Univ. of Tsukuba's course registration system",
+    description="Command-line interface to Univ. of Tsukuba's" +
+                "course registration system",
     load_description="",
     url="https://github.com/coins13/twins",
     scripts=["bin/twins"],

@@ -2,22 +2,23 @@ import os
 import sys
 import csv
 import time
-from sqlalchemy import Column, Integer, String, Float, or_, create_engine
+from sqlalchemy import Column, Integer, String, or_, create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.ext.declarative import declarative_base
 import requests
-from twins.misc import *
+from twins.misc import get_nendo
 
 DB_URL = "sqlite:///{0}/.course_list.db".format(os.path.expanduser("~"))
 Base = declarative_base()
+
 
 class Course (Base):
     __tablename__ = "courses"
     id_       = Column(Integer, primary_key=True, autoincrement=True)
     id        = Column(String)
     title     = Column(String)
-    method    = Column(String) # 授業方法: 謎の数字
+    method    = Column(String)  # 授業方法: 謎の数字
     credit    = Column(String)
     target_yr = Column(String)
     modules   = Column(String)
@@ -31,8 +32,9 @@ class Course (Base):
     title_en  = Column(String)  # 授業名 (英語)
     datetime  = Column(String)  # 謎の日時: "YYYY-MM-DD h:m:s"
 
-    def __init__ (self, id, title, method, credit, target_yr, modules, periods, room,
-                  teachers, desc, remarks, crauditor, reason, title_en, datetime):
+    def __init__ (self, id, title, method, credit, target_yr, modules,
+                  periods, room, teachers, desc, remarks, crauditor,
+                  reason, title_en, datetime):
         self.id        = id
         self.title     = title
         self.method    = method
@@ -53,14 +55,17 @@ class Course (Base):
 class DownloadError (Exception):
     pass
 
+
 def download_course_list ():
-     r = requests.post("https://kdb.tsukuba.ac.jp", headers={"Accept-Language": "ja"},
-           data={"action": "downloadList", "hdnFy": get_nendo(), "cmbDwldtype": "csv"})
+    r = requests.post("https://kdb.tsukuba.ac.jp",
+                      headers={"Accept-Language": "ja"},
+                      data={"action": "downloadList", "hdnFy": get_nendo(),
+                            "cmbDwldtype": "csv"})
 
-     if r.status_code != 200:
-       raise DownloadError
+    if r.status_code != 200:
+        raise DownloadError
 
-     return list(csv.reader(r.content.decode("shift_jis").strip().split("\n")))
+    return list(csv.reader(r.content.decode("shift_jis").strip().split("\n")))
 
 
 def open_db (url):
@@ -69,13 +74,15 @@ def open_db (url):
     Base.metadata.create_all(engine)
     return db
 
+
 class Kdb:
     """ Kernel DeBugger じゃあないよ """
     def __init__ (self):
 
         dbfile = os.path.expanduser("~/.course_list.db")
         # 無いかダウンロードしてから１か月経った場合にkdbからダウンロード
-        if not os.path.exists(dbfile) or (time.time() - os.path.getctime(dbfile)) > 3600*30:
+        if not os.path.exists(dbfile) or \
+               (time.time() - os.path.getctime(dbfile)) > 3600 * 30:
             list_ = download_course_list()
 
             if os.path.exists(dbfile):
@@ -84,7 +91,7 @@ class Kdb:
             # ダウンロードしたのからデータベースを作る
             self.db = open_db(DB_URL)
             for l in list_:
-                     self.db.add(Course(*l))
+                self.db.add(Course(*l))
         else:
             self.db = open_db(DB_URL)
 
@@ -98,7 +105,9 @@ class Kdb:
 
     def search_by_id (self, course_id):
         try:
-            v = self.db.query(Course).filter(Course.id == course_id.upper()).one()
+            v = self.db.query(Course). \
+                        filter(Course.id == course_id.upper()). \
+                        one()
         except NoResultFound:
             return None
         else:
