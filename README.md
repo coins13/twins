@@ -1,8 +1,11 @@
 twins
 ===
-履修。その全てを極めるために。  
+
+[![Build Status](https://travis-ci.org/coins13/twins.svg)](https://travis-ci.org/coins13/twins)
+
+履修。その全てを極めるために。
 ![what we want](http://imgs.xkcd.com/comics/university_website.png)
-  
+
 
 機能
 ---
@@ -16,7 +19,6 @@ twins
 必要なもの
 ---------
 - *nix
-- w3m
 - Python3
 
 インストール
@@ -26,12 +28,6 @@ $ pip3 install twins
 ```
 
 使い方
------
-```
-$ twins --help
-```
-
-用例
 -----
 ```sh
 # オペレーティングシステムIIを履修
