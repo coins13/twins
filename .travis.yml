@@ -1,0 +1,11 @@
+language: python
+python:
+  - "3.2"
+  - "3.3"
+  - "3.4"
+install:
+  - pip install -r requirements.txt
+  - pip install flake8
+
+script:
+  - flake8 . --statistics --ignore=F401,E221,E241,E126,E211,E251,E127,E243,E131
