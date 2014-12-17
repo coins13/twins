@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="twins",
-    version="100.2",
+    version="101.0",
     description="Command-line interface to Univ. of Tsukuba's" +
                 "course registration system",
     load_description="",
