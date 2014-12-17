@@ -41,7 +41,7 @@ $ twins unreg GB11601
 # 秋Aの時間割を見る
 $ twins timetable 秋A
 # TwinCalでtimetable.icsを作成
-$ twins reged --ics > timetable.ics
+$ twins ical timetable.ics
 # A+とった授業
 $ twins stat | awk '$1 == "A+"{ print }'
 # 母親にGPAを教える
