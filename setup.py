@@ -5,12 +5,12 @@ setup(
     version="101.0",
     description="Command-line interface to Univ. of Tsukuba's" +
                 "course registration system",
-    load_description="",
+    long_description="",
     url="https://github.com/coins13/twins",
     scripts=["bin/twins"],
     install_requires=["pyquery", "requests", "prettytable", "sqlalchemy"],
     packages=find_packages(),
-    classfiers = [
+    classifiers = [
         "Operating System :: POSIX",
         "Environment :: Console",
         "Development Status :: 5 - Production/Stable",
