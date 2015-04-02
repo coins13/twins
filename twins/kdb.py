@@ -83,15 +83,19 @@ class Kdb:
         # 無いかダウンロードしてから１か月経った場合にkdbからダウンロード
         if not os.path.exists(dbfile) or \
                (time.time() - os.path.getctime(dbfile)) > 3600 * 30:
+            sys.stderr.write("科目情報をダウンロード中...\n")
+
             list_ = download_course_list()
 
             if os.path.exists(dbfile):
                 os.unlink(dbfile)
 
             # ダウンロードしたのからデータベースを作る
+            sys.stderr.write("科目情報データベースを作成中...\n")
             self.db = open_db(DB_URL)
             for l in list_:
                 self.db.add(Course(*l))
+
         else:
             self.db = open_db(DB_URL)
 
