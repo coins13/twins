@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 import csv
 import time
@@ -117,7 +118,8 @@ class Kdb:
         else:
             return vars(v)
 
-    def search (self, query):
+
+    def normal_search (self, query):
         all = self.db.query(Course).filter(or_(
                 Course.id.like('%{0}%'.format(query)),
                 Course.title.like('%{0}%'.format(query)),
@@ -133,6 +135,25 @@ class Kdb:
         for c in all:
             matched.append(vars(c))
         return matched
+
+    def regex_search (self, regex):
+        matched = []
+        for c in self.db.query(Course).yield_per(16):
+            for v in vars(c).values():
+                if regex.search(str(v)):
+                    matched.append(vars(c))
+                    break
+        return matched
+
+    def search (self, query):
+        if query.startswith("/") and query.endswith("/"):
+            try:
+                regex = re.compile(query.rstrip("/").lstrip("/"))
+            except Exception as e:
+                sys.exit("twins: invalid regex: {0}".format(e))
+            return self.regex_search(regex)
+        else:
+            return self.normal_search(query)
 
 
 def get_course_info (course_id):

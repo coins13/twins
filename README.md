@@ -38,6 +38,8 @@ $ twins unreg GB11601
 $ twins timetable 秋A
 # TwinCalでtimetable.icsを作成
 $ twins ical timetable.ics
+# 秋ABで木曜4-6限にある授業を検索
+$ twins search '/^木4[1-9\,\-]*$/' | grep "\t秋AB\t"
 # A+とった授業
 $ twins stat | awk '$1 == "A+"{ print }'
 # 母親にGPAを教える
