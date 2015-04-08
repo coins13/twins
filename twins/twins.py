@@ -5,7 +5,7 @@ from urllib.parse import urlparse, parse_qs
 import requests
 from pyquery import PyQuery as pq
 
-import twins.kdb as kdb
+import twins.kdb
 from twins.misc import get_nendo
 
 TWINS_URL = "https://twins.tsukuba.ac.jp/campusweb/campussquare.do"
@@ -157,6 +157,7 @@ a{ color: #3f3f3f; text-decoration: none; }
         """ 履修申請する """
 
         # 何モジュール開講か取得
+        kdb = twins.kdb.Kdb()
         first_module = kdb.get_course_info(course_id)["modules"][:2]
         if not first_module.startswith("春") and \
            not first_module.startswith("秋"):
@@ -198,6 +199,7 @@ a{ color: #3f3f3f; text-decoration: none; }
         course_id = course_id.upper()
 
         # 何モジュール開講か取得
+        kdb = twins.kdb.Kdb()
         first_module = kdb.get_course_info(course_id)["modules"][:2]
         if not first_module.startswith("春") and \
            not first_module.startswith("秋"):
@@ -271,6 +273,7 @@ a{ color: #3f3f3f; text-decoration: none; }
 
     def get_registered_courses (self):
         """ 履修登録済み授業を取得 """
+        kdb = twins.kdb.Kdb()
         _reged = []
         for x in ((1, "A"), (2, "A"), (3, "A"), (4, "B"), (5, "B"), (6, "B")):
             self.req("RSW0001000-flow")

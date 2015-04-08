@@ -156,11 +156,9 @@ class Kdb:
             return self.normal_search(query)
 
 
-def get_course_info (course_id):
-    """ 授業情報を返す。失敗したらNone。 """
-
-    with Kdb() as db:
-        return db.search_by_id(course_id.upper())
+    def get_course_info (self, course_id):
+        """ 授業情報を返す。失敗したらNone。 """
+        return self.search_by_id(course_id.upper())
 
 if __name__ == "__main__":
     try:

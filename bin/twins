@@ -10,7 +10,7 @@ from subprocess import Popen,PIPE
 sys.path.insert(0, os.getcwd())
 
 import twins.twins as twins
-import twins.kdb as kdb
+import twins.kdb
 import twins.twincal
 from twins import Twins
 
@@ -149,8 +149,9 @@ def info (args):
     id = args["id"]
 
     try:
+        kdb = twins.kdb.Kdb()
         c = kdb.get_course_info(id)
-    except kdb.DownloadError:
+    except twins.kdb.DownloadError:
         sys.exit("failed to download Kdb database")
 
     if c is None:
@@ -171,21 +172,21 @@ def search (args):
     query = args["query"]
 
     try:
-        k = kdb.Kdb()
-    except kdb.DownloadError:
+        kdb = twins.kdb.Kdb()
+    except twins.kdb.DownloadError:
         sys.exit("failed to download Kdb database")
 
     if with_table:
         from prettytable import PrettyTable
         x = PrettyTable(["科目番号", "単位", "学期", "曜日", "教室", "科目名"])
         x.padding_width = 1
-        for c in k.search(query):
+        for c in kdb.search(query):
             if c is None: continue
             x.add_row([c["id"], c["credit"], c["modules"], c["periods"], c["room"], c["title"]])
         print(x)
     else:
         print("%s\t%s\t%s\t%s\t\t%s" % ("科目番号", "単位", "学期", "曜日", "科目名"))
-        for c in k.search(query):
+        for c in kdb.search(query):
             if c is None: continue
             print("%s\t\t%s\t%s\t%s\t\t%s" % (c["id"], c["credit"], c["modules"], c["periods"], c["title"]))
 
