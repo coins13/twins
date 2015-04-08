@@ -91,7 +91,7 @@ def timetable (args):
         sys.exit("エラー: " + str(e))
 
 def reg (args):
-    id = args["id"]
+    id = args["id"].upper()
     t = login_twins()
 
     try:
