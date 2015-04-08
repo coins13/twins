@@ -10,9 +10,10 @@ from subprocess import Popen,PIPE
 sys.path.insert(0, os.getcwd())
 
 import twins.twins as twins
+from twins import Twins
 import twins.kdb
 import twins.twincal
-from twins import Twins
+import twins.bridge
 
 def get_username ():
     try:
@@ -57,6 +58,12 @@ def login_twins ():
 #  サブコマンド
 #
 #
+def bridge (args):
+    first = True
+    for id in twins.bridge.Bridge().courses:
+        search({"query": id, "without_header": not first, "table": False})
+        first = False
+
 def stats (args):
     t = login_twins()
     print("評価\t単位数\t科目名")
@@ -169,6 +176,7 @@ def info (args):
 
 def search (args):
     with_table = args["table"]
+    without_header = args["without_header"]
     query = args["query"]
 
     try:
@@ -185,7 +193,8 @@ def search (args):
             x.add_row([c["id"], c["credit"], c["modules"], c["periods"], c["room"], c["title"]])
         print(x)
     else:
-        print("%s\t%s\t%s\t%s\t\t%s" % ("科目番号", "単位", "学期", "曜日", "科目名"))
+        if not without_header:
+            print("%s\t%s\t%s\t%s\t\t%s" % ("科目番号", "単位", "学期", "曜日", "科目名"))
         for c in kdb.search(query):
             if c is None: continue
             print("%s\t\t%s\t%s\t%s\t\t%s" % (c["id"], c["credit"], c["modules"], c["periods"], c["title"]))
@@ -224,12 +233,16 @@ def main ():
 
     parser_search = subparsers.add_parser("search", help="科目検索")
     parser_search.add_argument("query", help="文字列")
+    parser_search.add_argument("--without-header", action="store_true", help="ヘッダを出力しない")
     parser_search.add_argument("--table", action="store_true", help="人にやさしい表示")
     parser_search.set_defaults(func=search)
 
     parser_timetable = subparsers.add_parser("timetable", help="時間割を表示")
     parser_timetable.add_argument("module", help="モジュール名 (例: 秋A)")
     parser_timetable.set_defaults(func=timetable)
+
+    parser_bridge = subparsers.add_parser("bridge", help="空きコマに入れられるやつ一覧 (BRIDGE)")
+    parser_bridge.set_defaults(func=bridge)
 
     args = parser.parse_args()
 
