@@ -1,7 +1,6 @@
 twins
-===
-
-[![Build Status](https://travis-ci.org/coins13/twins.svg)](https://travis-ci.org/coins13/twins)
+=====
+[![Build Status](https://travis-ci.org/coins13/twins.svg?branch=master)](https://travis-ci.org/coins13/twins)
 
 履修。その全てを極めるために。
 ![what we want](http://imgs.xkcd.com/comics/university_website.png)
