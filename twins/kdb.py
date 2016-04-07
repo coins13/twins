@@ -159,10 +159,3 @@ class Kdb:
     def get_course_info (self, course_id):
         """ 授業情報を返す。失敗したらNone。 """
         return self.search_by_id(course_id.upper())
-
-if __name__ == "__main__":
-    try:
-        Kdb()
-    except DownloadError:
-        sys.exit("failed")
-    print("saved to ~/.course_list.db")

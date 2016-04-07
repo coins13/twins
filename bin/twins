@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # coding: utf-8
 import os
+import json
 import sys
 import argparse
 from getpass import getpass
@@ -200,6 +201,11 @@ def search (args):
             print("%s\t\t%s\t%s\t%s\t\t%s" % (c["id"], c["credit"], c["modules"], c["periods"], c["title"]))
 
 
+def dl (args):
+    courses = twins.kdb.download_course_list()
+    json.dump(courses, open(args["filepath"], "w"), indent=2, ensure_ascii=False)
+
+
 def main ():
     parser = argparse.ArgumentParser(description="Command-line interface to TWINS")
     subparsers = parser.add_subparsers()
@@ -243,6 +249,10 @@ def main ():
 
     parser_bridge = subparsers.add_parser("bridge", help="空きコマに入れられるやつ一覧 (BRIDGE)")
     parser_bridge.set_defaults(func=bridge)
+
+    parser_dl = subparsers.add_parser("dl", help="科目データベースをダウンロードする (JSON)")
+    parser_dl.add_argument("filepath", help="ファイル名")
+    parser_dl.set_defaults(func=dl)
 
     args = parser.parse_args()
 
