@@ -67,9 +67,8 @@ def bridge (args):
 
 def stats (args):
     t = login_twins()
-    print("評価\t単位数\t科目名")
     for a in t.get_achievements():
-        print("%s\t%s\t%s" % (a["総合評価"], a["単位数"], a["科目名"]))
+        print("%s\t%s\t%s\t%s" % (a["科目番号"], a["総合評価"], a["単位数"], a["科目名"]))
 
 
 def sum (args):
