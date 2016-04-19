@@ -13,7 +13,7 @@ sys.path.insert(0, os.getcwd())
 import twins.twins as twins
 from twins import Twins
 import twins.kdb
-import twins.twincal
+import twins.ics
 import twins.bridge
 
 def get_username ():
@@ -121,15 +121,9 @@ def unreg (args):
 
 def ical (args):
     t = login_twins()
-    season,period = args["module"]
     courses = []
-    for c in t.get_registered_courses():
-        if c is not None and \
-           season in c["modules"] and \
-           period in c["modules"]:
-          courses.append(c["id"])
+    print(twins.ics.generate_ics(t.get_registered_courses()))
 
-    open(args["file"], "w").write(twins.twincal.generate_ics(courses))
 
 def reged (args):
     with_table = args["table"]
@@ -219,9 +213,7 @@ def main ():
     parser_reged.add_argument("--table", action="store_true", help="人にやさしい表示")
     parser_reged.set_defaults(func=reged)
 
-    parser_ical = subparsers.add_parser("ical", help="時間割をiCalendar形式でエクスポート（TwinCal）")
-    parser_ical.add_argument("module", help="モジュール名 (例: 秋A)")
-    parser_ical.add_argument("file", help="ファイル名")
+    parser_ical = subparsers.add_parser("ical", help="時間割をiCalendar形式でエクスポート")
     parser_ical.set_defaults(func=ical)
 
     parser_reg = subparsers.add_parser("reg", help="履修登録")
