@@ -119,7 +119,7 @@ def unreg (args):
     except twins.RequestError:
         sys.exit("履修取り消しエラー: '%s'" % id)
 
-def ical (args):
+def ics (args):
     t = login_twins()
     courses = []
     print(twins.ics.generate_ics(t.get_registered_courses()))
@@ -213,8 +213,8 @@ def main ():
     parser_reged.add_argument("--table", action="store_true", help="人にやさしい表示")
     parser_reged.set_defaults(func=reged)
 
-    parser_ical = subparsers.add_parser("ical", help="時間割をiCalendar形式でエクスポート")
-    parser_ical.set_defaults(func=ical)
+    parser_ics = subparsers.add_parser("ics", help="時間割をiCalendar形式でエクスポート")
+    parser_ics.set_defaults(func=ics)
 
     parser_reg = subparsers.add_parser("reg", help="履修登録")
     parser_reg.add_argument("id", help="科目番号")
