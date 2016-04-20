@@ -153,7 +153,6 @@ def generate_ics(courses):
     """.ics作るやつ"""
     events = ""
     for c in courses:
-        uid = str(uuid.uuid4())
         created = strftime(datetime.datetime.utcnow()) + "Z"
         summary = c["title"]
         location = c["room"]
@@ -167,6 +166,7 @@ def generate_ics(courses):
                 "modules={modules})\n".format(**c))
 
         for start, end in dates:
+            uid = str(uuid.uuid4())
             dt_start = strftime(start)
             dt_end = strftime(end)
 
