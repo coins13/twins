@@ -121,8 +121,13 @@ def unreg (args):
 
 def ics (args):
     t = login_twins()
+    season, period = args["module"]
     courses = []
-    print(twins.ics.generate_ics(t.get_registered_courses()))
+    for c in t.get_registered_courses():
+        if c is not None and season in c["modules"] and period in c["modules"]:
+            courses.append(c)
+
+    print(twins.ics.generate_ics(courses))
 
 
 def reged (args):
@@ -214,6 +219,7 @@ def main ():
     parser_reged.set_defaults(func=reged)
 
     parser_ics = subparsers.add_parser("ics", help="時間割をiCalendar形式でエクスポート")
+    parser_ics.add_argument("module", help="モジュール名 (例: 秋A)")
     parser_ics.set_defaults(func=ics)
 
     parser_reg = subparsers.add_parser("reg", help="履修登録")

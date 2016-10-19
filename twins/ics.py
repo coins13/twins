@@ -2,6 +2,7 @@
 import datetime
 import uuid
 import re
+import sys
 import twins.twins as twins
 from twins import Twins
 
@@ -45,7 +46,7 @@ start_dates = {
     "春C": (2016, 7, 5),
     "秋A": (2016, 10, 1),
     "秋B": (2016, 11, 8),
-    "秋C": (2016, 1, 10),
+    "秋C": (2017, 1, 10),
 }
 
 end_dates = {
@@ -54,7 +55,7 @@ end_dates = {
     "春C": (2016, 8, 9),
     "秋A": (2016, 11, 7),
     "秋B": (2016, 12, 28),
-    "秋C": (2016, 2, 15),
+    "秋C": (2017, 2, 15),
 }
 
 def parse_module(module):
@@ -164,6 +165,7 @@ def generate_ics(courses):
             sys.stderr.write("無視: 日付またはモジュールのパースに失敗しました"
                 "(title={title}, periods={periods},"
                 "modules={modules})\n".format(**c))
+            continue
 
         for start, end in dates:
             uid = str(uuid.uuid4())

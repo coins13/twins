@@ -35,8 +35,8 @@ $ twins reg GB31801
 $ twins unreg GB11601
 # 秋Aの時間割を見る
 $ twins timetable 秋A
-# 時間割をiCalendar形式で出力
-$ twins ics > timetable.ics
+# 秋C時間割をiCalendar形式で出力
+$ twins ics 秋C > timetable.ics
 # 秋ABで木曜4-6限にある授業を検索
 $ twins search '/^木4[1-9\,\-]*$/' | grep "秋AB"
 # A+とった授業
