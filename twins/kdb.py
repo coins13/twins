@@ -35,7 +35,7 @@ class Course (Base):
 
     def __init__ (self, id, title, method, credit, target_yr, modules,
                   periods, room, teachers, desc, remarks, crauditor,
-                  reason, title_en, datetime):
+                  reason, title_en, id_en, title2, datetime):
         self.id        = id
         self.title     = title
         self.method    = method
@@ -50,6 +50,8 @@ class Course (Base):
         self.crauditor = crauditor
         self.reason    = reason
         self.title_en  = title_en
+        self.id_en     = id_en
+        self.title2    = title2
         self.datetime  = datetime
 
 
